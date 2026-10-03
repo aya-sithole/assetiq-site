@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AssetIQ - Supabase-backed prototype</title>
-    <style>
+<style>
         /* ==========================================================================
            GLOBAL VARIABLES & RESET
            ========================================================================== */
@@ -93,22 +92,15 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .content {
             padding: 16px 20px;
             flex: 1;
             overflow-y: auto;
-            padding-top: 40px;
+            padding-top: 40px; 
             padding-bottom: 24px;
         }
 
@@ -170,19 +162,9 @@
             border: none;
         }
 
-        .nav-tab.active {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .nav-icon {
-            font-size: 20px;
-            margin-bottom: 2px;
-        }
-
-        .has-bottom-nav {
-            padding-bottom: 85px !important;
-        }
+        .nav-tab.active { color: var(--primary); font-weight: 600; }
+        .nav-icon { font-size: 20px; margin-bottom: 2px; }
+        .has-bottom-nav { padding-bottom: 85px !important; }
 
         /* ==========================================================================
            REUSABLE UI COMPONENTS
@@ -200,80 +182,28 @@
             transition: background-color 0.15s, transform 0.1s;
         }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:active { background-color: var(--primary-hover); transform: scale(0.98); }
+        .btn-secondary { background-color: var(--surface); border: 1px solid var(--border); color: var(--text-main); }
+        .btn-secondary:active { background-color: #f9fafb; }
+        .btn-danger { background-color: var(--danger); color: white; margin-top: auto; }
+        .btn-danger:active { background-color: var(--danger-hover); transform: scale(0.98); }
 
-        .btn-primary:active {
-            background-color: var(--primary-hover);
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-        }
-
-        .btn-secondary:active {
-            background-color: #f9fafb;
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-            margin-top: auto;
-        }
-
-        .btn-danger:active {
-            background-color: var(--danger-hover);
-            transform: scale(0.98);
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-            width: 100%;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
+        .form-group { margin-bottom: 14px; width: 100%; }
+        .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
         .form-control {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 14px;
-            background-color: var(--surface);
-            transition: all 0.2s;
-            appearance: none;
+            width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 10px;
+            font-size: 14px; background-color: var(--surface); transition: all 0.2s; appearance: none;
         }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .form-control:disabled {
-            background-color: #f3f4f6;
-            color: #4b5563;
-            cursor: not-allowed;
-            border-color: #e5e7eb;
-        }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-control:disabled { background-color: #f3f4f6; color: #4b5563; cursor: not-allowed; border-color: #e5e7eb; }
 
         /* ==========================================================================
            AUTHENTICATION FLOW
            ========================================================================== */
         .auth-bg-full {
             background-color: #0d6efd;
-            background-image:
+            background-image: 
                 radial-gradient(circle at 15% 20%, #3b82f6 0%, transparent 40%),
                 radial-gradient(circle at 85% 65%, #0b5ed7 0%, transparent 50%),
                 radial-gradient(circle at 35% 85%, #3b82f6 0%, transparent 45%);
@@ -282,471 +212,119 @@
             color: white;
         }
 
-        .auth-top-bar {
-            padding: 45px 24px 20px;
-            font-weight: 700;
-            font-size: 18px;
-        }
+        .auth-top-bar { padding: 45px 24px 20px; font-weight: 700; font-size: 18px; }
+        .landing-content { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px 24px 45px; }
+        .landing-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+        .landing-subtitle { font-size: 14px; color: rgba(255, 255, 255, 0.85); margin-bottom: 36px; line-height: 1.5; }
+        .btn-group-bottom { display: flex; flex-direction: column; gap: 12px; }
+        .btn-white { background-color: white; color: #0d6efd; }
+        .btn-white:active { background-color: #f3f4f6; }
+        .btn-outline-white { background-color: transparent; color: white; border: 1px solid rgba(255, 255, 255, 0.5); }
+        .btn-outline-white:active { background-color: rgba(255, 255, 255, 0.1); }
+        .btn-blue { background-color: #0d6efd; color: white; }
+        .btn-blue:active { background-color: #0b5ed7; transform: scale(0.98); }
+        .btn-outline-grey { background-color: white; color: var(--text-muted); border: 1px solid var(--border); }
 
-        .landing-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 24px 24px 45px;
-        }
-
-        .landing-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            line-height: 1.2;
-        }
-
-        .landing-subtitle {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 36px;
-            line-height: 1.5;
-        }
-
-        .btn-group-bottom {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .btn-white {
-            background-color: white;
-            color: #0d6efd;
-        }
-
-        .btn-white:active {
-            background-color: #f3f4f6;
-        }
-
-        .btn-outline-white {
-            background-color: transparent;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .btn-outline-white:active {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-blue {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .btn-blue:active {
-            background-color: #0b5ed7;
-            transform: scale(0.98);
-        }
-
-        .btn-outline-grey {
-            background-color: white;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
-
-        .auth-screen {
-            background-color: white;
-        }
-
+        .auth-screen { background-color: white; }
         .auth-header-wave {
             background-color: #0d6efd;
             background-image: radial-gradient(circle at 80% 20%, #3b82f6 0%, transparent 40%);
-            position: relative;
-            height: 38%;
-            padding: 45px 24px 20px;
-            display: flex;
-            flex-direction: column;
-            color: white;
-            flex-shrink: 0;
+            position: relative; height: 38%; padding: 45px 24px 20px; display: flex; flex-direction: column; color: white; flex-shrink: 0;
         }
-
         .auth-header-wave::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 40px;
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
             background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 375 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,25 C150,55 250,0 375,25 L375,40 L0,40 Z" fill="%23ffffff"/></svg>') no-repeat bottom;
             background-size: 100% 100%;
         }
-
-        .icon-btn-back {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            width: 32px;
-            margin-bottom: 12px;
-        }
-
-        .auth-title {
-            font-size: 30px;
-            font-weight: 700;
-            line-height: 1.15;
-        }
-
-        .auth-form-container {
-            flex: 1;
-            padding: 10px 24px 20px;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .icon-input {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-            color: #9ca3af;
-        }
-
-        .input-check {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px;
-            color: #3b82f6;
-        }
-
-        .form-control-minimal {
-            width: 100%;
-            padding: 14px 28px;
-            border: none;
-            border-bottom: 1px solid var(--border);
-            font-size: 15px;
-            background: transparent;
-        }
-
-        .form-control-minimal:focus {
-            outline: none;
-            border-bottom: 1px solid #0d6efd;
-        }
-
-        .forgot-link {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            text-align: right;
-        }
-
-        .forgot-link a {
-            color: #0d6efd;
-            text-decoration: none;
-        }
-
-        .mt-4 {
-            margin-top: 18px;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 12px;
-            margin: 18px 0;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .divider span {
-            padding: 0 12px;
-        }
-
-        .error-msg {
-            color: var(--danger);
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            width: 100%;
-            margin-bottom: 14px;
-            display: none;
-        }
+        .icon-btn-back { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 32px; margin-bottom: 12px; }
+        .auth-title { font-size: 30px; font-weight: 700; line-height: 1.15; }
+        .auth-form-container { flex: 1; padding: 10px 24px 20px; background-color: white; display: flex; flex-direction: column; overflow-y: auto; }
+        .icon-input { position: relative; margin-bottom: 16px; }
+        .input-icon { position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-size: 16px; color: #9ca3af; }
+        .input-check { position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 14px; color: #3b82f6; }
+        .form-control-minimal { width: 100%; padding: 14px 28px; border: none; border-bottom: 1px solid var(--border); font-size: 15px; background: transparent; }
+        .form-control-minimal:focus { outline: none; border-bottom: 1px solid #0d6efd; }
+        .forgot-link { font-size: 13px; font-weight: 600; margin-bottom: 12px; text-align: right; }
+        .forgot-link a { color: #0d6efd; text-decoration: none; }
+        .mt-4 { margin-top: 18px; }
+        .divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; margin: 18px 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+        .divider span { padding: 0 12px; }
+        .error-msg { color: var(--danger); background-color: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 8px; font-size: 12px; width: 100%; margin-bottom: 14px; display: none; }
 
         /* ==========================================================================
            DASHBOARD & ASSET CARDS
            ========================================================================== */
         .dash-header {
-            background-color: var(--surface);
-            padding: 45px 20px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background-color: var(--surface); padding: 45px 20px 16px;
+            border-bottom: 1px solid var(--border); display: flex;
+            justify-content: space-between; align-items: center;
         }
 
-        .dash-org {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .dash-greeting {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
+        .dash-org { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+        .dash-greeting { font-size: 20px; font-weight: 700; color: var(--text-main); }
+        
         .role-pill {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-            vertical-align: middle;
+            display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+            padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle;
         }
-
-        .role-pill.admin {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .role-pill.user {
-            background: #f3f4f6;
-            color: #4b5563;
-        }
+        .role-pill.admin { background: #dbeafe; color: #1e40af; }
+        .role-pill.user { background: #f3f4f6; color: #4b5563; }
 
         .profile-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #dbeafe;
-            color: var(--primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            cursor: pointer;
+            width: 40px; height: 40px; border-radius: 50%; background-color: #dbeafe;
+            color: var(--primary); display: flex; justify-content: center; align-items: center;
+            font-size: 18px; cursor: pointer;
         }
 
         .notice-banner {
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            border-radius: 14px;
-            padding: 14px;
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            background: var(--warning-bg); border: 1px solid var(--warning-border);
+            border-radius: 14px; padding: 14px; margin-top: 12px; display: flex;
+            flex-direction: column; gap: 8px;
         }
-
-        .notice-head {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .notice-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--warning-text);
-        }
-
-        .notice-text {
-            font-size: 12px;
-            color: var(--warning-text);
-            line-height: 1.4;
-        }
+        .notice-head { display: flex; align-items: center; gap: 8px; }
+        .notice-title { font-size: 13px; font-weight: 700; color: var(--warning-text); }
+        .notice-text { font-size: 12px; color: var(--warning-text); line-height: 1.4; }
 
         .btn-resolve {
-            background-color: var(--warning-text);
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            align-self: flex-start;
-            margin-top: 4px;
+            background-color: var(--warning-text); color: white; font-size: 12px;
+            font-weight: 600; padding: 8px 14px; border-radius: 8px; border: none;
+            cursor: pointer; align-self: flex-start; margin-top: 4px;
         }
 
-        .asset-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 18px 0 12px;
-        }
+        .asset-toolbar { display: flex; justify-content: space-between; align-items: center; margin: 18px 0 12px; }
+        .section-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
 
-        .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .toggle-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 36px;
-            height: 20px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #d1d5db;
-            transition: .2s;
-            border-radius: 20px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .2s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--primary);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(16px);
-        }
+        .toggle-wrapper { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d5db; transition: .2s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(16px); }
 
         .asset-card {
-            background-color: var(--surface);
-            border-radius: 14px;
-            padding: 14px;
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: background-color 0.15s;
+            background-color: var(--surface); border-radius: 14px; padding: 14px;
+            display: flex; align-items: center; margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: pointer;
+            border: 1px solid transparent; transition: background-color 0.15s;
         }
-
-        .asset-card:active {
-            background-color: #f9fafb;
-            border-color: var(--border);
-        }
-
-        .asset-card.inactive {
-            opacity: 0.65;
-            background-color: #f9fafb;
-            border: 1px dashed var(--border);
-        }
-
-        .asset-card.is-hidden {
-            display: none;
-        }
+        .asset-card:active { background-color: #f9fafb; border-color: var(--border); }
+        .asset-card.inactive { opacity: 0.65; background-color: #f9fafb; border: 1px dashed var(--border); }
+        .asset-card.is-hidden { display: none; }
 
         .asset-icon {
-            font-size: 26px;
-            margin-right: 14px;
-            background: var(--background);
-            width: 48px;
-            height: 48px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 10px;
+            font-size: 26px; margin-right: 14px; background: var(--background);
+            width: 48px; height: 48px; display: flex; justify-content: center; align-items: center; border-radius: 10px;
         }
-
-        .asset-details {
-            flex: 1;
-        }
-
-        .asset-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 2px;
-        }
-
-        .asset-id {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .asset-meta {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .badge-active {
-            background-color: var(--success-bg);
-            color: var(--success-text);
-            font-size: 10px;
-            font-weight: 600;
-            padding: 3px 7px;
-            border-radius: 20px;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        .badge-inactive {
-            background-color: var(--inactive-bg);
-            color: var(--inactive-text);
-            font-size: 10px;
-            font-weight: 600;
-            padding: 3px 7px;
-            border-radius: 20px;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        .chevron {
-            color: #9ca3af;
-            font-size: 16px;
-            font-weight: bold;
-        }
+        .asset-details { flex: 1; }
+        .asset-name { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 2px; }
+        .asset-id { font-size: 12px; color: var(--text-muted); }
+        
+        .asset-meta { display: flex; flex-direction: column; align-items: flex-end; }
+        .badge-active { background-color: var(--success-bg); color: var(--success-text); font-size: 10px; font-weight: 600; padding: 3px 7px; border-radius: 20px; margin-bottom: 4px; text-transform: uppercase; }
+        .badge-inactive { background-color: var(--inactive-bg); color: var(--inactive-text); font-size: 10px; font-weight: 600; padding: 3px 7px; border-radius: 20px; margin-bottom: 4px; text-transform: uppercase; }
+        .chevron { color: #9ca3af; font-size: 16px; font-weight: bold; }
 
         /* ==========================================================================
            MY ORGANISATION DASHBOARD (ADMIN)
@@ -765,26 +343,9 @@
             border: 1px solid var(--border);
         }
 
-        .metric-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .metric-val {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-top: 4px;
-        }
-
-        .metric-sub {
-            font-size: 10px;
-            color: var(--success-text);
-            font-weight: 600;
-            margin-top: 2px;
-        }
+        .metric-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .metric-val { font-size: 18px; font-weight: 700; color: var(--text-main); margin-top: 4px; }
+        .metric-sub { font-size: 10px; color: var(--success-text); font-weight: 600; margin-top: 2px; }
 
         .critical-issues-box {
             background-color: #fef2f2;
@@ -850,410 +411,78 @@
             margin-bottom: 6px;
         }
 
-        .badge-open {
-            background: #fee2e2;
-            color: #991b1b;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .badge-resolved {
-            background: #dcfce7;
-            color: #166534;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
+        .badge-open { background: #fee2e2; color: #991b1b; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+        .badge-resolved { background: #dcfce7; color: #166534; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
 
         /* ==========================================================================
            AI CHAT MESSENGER
            ========================================================================== */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: calc(100% - 60px);
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .chat-bubble {
-            max-width: 82%;
-            padding: 12px 14px;
-            border-radius: 14px;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        .chat-bubble.bot {
-            background-color: var(--surface);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
-
-        .chat-bubble.user {
-            background-color: var(--primary);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-input-area {
-            display: flex;
-            gap: 8px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border);
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 10px 14px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            font-size: 13px;
-            outline: none;
-            background: var(--surface);
-        }
-
-        .chat-input:focus {
-            border-color: var(--primary);
-        }
-
-        .chat-send-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
+        .chat-container { display: flex; flex-direction: column; height: calc(100% - 60px); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 12px; }
+        .chat-bubble { max-width: 82%; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; }
+        .chat-bubble.bot { background-color: var(--surface); color: var(--text-main); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 2px; }
+        .chat-bubble.user { background-color: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .chat-input-area { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .chat-input { flex: 1; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px; outline: none; background: var(--surface); }
+        .chat-input:focus { border-color: var(--primary); }
+        .chat-send-btn { background-color: var(--primary); color: white; border: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
 
         /* Profile & Summary */
-        .summary-badge-banner {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-
-        .profile-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .profile-avatar {
-            width: 70px;
-            height: 70px;
-            background-color: #dbeafe;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 32px;
-            margin-bottom: 8px;
-            color: var(--primary);
-        }
-
-        .profile-job {
-            color: var(--text-muted);
-            font-size: 13px;
-            margin-top: 2px;
-        }
+        .summary-badge-banner { background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 8px 12px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+        .profile-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        .profile-avatar { width: 70px; height: 70px; background-color: #dbeafe; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; margin-bottom: 8px; color: var(--primary); }
+        .profile-job { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
 
         /* ==========================================================================
            ACCESS-CONTROL LAYER (added for the Security & User Access section)
            ========================================================================== */
-        .role-pill.viewer {
-            background: #fef3c7;
-            color: #92400e;
-        }
+        .role-pill.viewer { background: #fef3c7; color: #92400e; }
+        .info-msg { color: #1e40af; background-color: #eff6ff; border-color: #bfdbfe; }
+        .chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+        .chip { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 20px; padding: 5px 11px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .chip:active { background: #dbeafe; }
+        .auth-note { font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-top: 10px; text-align: center; }
+        .auth-hint { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin: 4px 0 8px; }
 
-        .info-msg {
-            color: #1e40af;
-            background-color: #eff6ff;
-            border-color: #bfdbfe;
-        }
+        .toast { position: absolute; left: 16px; right: 16px; top: 52px; z-index: 200; padding: 10px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; line-height: 1.4; opacity: 0; transform: translateY(-8px); transition: opacity 0.18s, transform 0.18s; pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.ok { background: var(--success-bg); color: var(--success-text); }
+        .toast.bad { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
-        .chip-row {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
+        .panel-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+        .panel-title { font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+        .panel-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+        .perm-list { list-style: none; font-size: 12px; line-height: 1.6; margin-top: 4px; }
+        .perm-list li.yes::before { content: "✓ "; color: var(--success-text); font-weight: 700; }
+        .perm-list li.no::before { content: "✗ "; color: var(--danger); font-weight: 700; }
+        .perm-list li.no { color: var(--text-muted); }
+        .tool-btn { display: flex; align-items: center; gap: 8px; }
 
-        .chip {
-            background: #eff6ff;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
-            border-radius: 20px;
-            padding: 5px 11px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+        .audit-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+        .audit-item.refused { border-left: 3px solid var(--danger); }
+        .audit-item.allowed { border-left: 3px solid #22c55e; }
+        .audit-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 3px; }
+        .audit-action { font-size: 13px; font-weight: 600; }
+        .audit-meta { font-size: 11px; color: var(--text-muted); }
+        .audit-detail { font-size: 12px; color: var(--text-main); margin-top: 3px; word-break: break-word; }
+        .badge-refused { background: #fee2e2; color: #991b1b; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+        .badge-allowed { background: #dcfce7; color: #166534; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
 
-        .chip:active {
-            background: #dbeafe;
-        }
-
-        .auth-note {
-            font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .auth-hint {
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin: 4px 0 8px;
-        }
-
-        .toast {
-            position: absolute;
-            left: 16px;
-            right: 16px;
-            top: 52px;
-            z-index: 200;
-            padding: 10px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 600;
-            line-height: 1.4;
-            opacity: 0;
-            transform: translateY(-8px);
-            transition: opacity 0.18s, transform 0.18s;
-            pointer-events: none;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast.ok {
-            background: var(--success-bg);
-            color: var(--success-text);
-        }
-
-        .toast.bad {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .panel-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .panel-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 6px;
-        }
-
-        .panel-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        .perm-list {
-            list-style: none;
-            font-size: 12px;
-            line-height: 1.6;
-            margin-top: 4px;
-        }
-
-        .perm-list li.yes::before {
-            content: "✓ ";
-            color: var(--success-text);
-            font-weight: 700;
-        }
-
-        .perm-list li.no::before {
-            content: "✗ ";
-            color: var(--danger);
-            font-weight: 700;
-        }
-
-        .perm-list li.no {
-            color: var(--text-muted);
-        }
-
-        .tool-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .audit-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-        }
-
-        .audit-item.refused {
-            border-left: 3px solid var(--danger);
-        }
-
-        .audit-item.allowed {
-            border-left: 3px solid #22c55e;
-        }
-
-        .audit-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 3px;
-        }
-
-        .audit-action {
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .audit-meta {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .audit-detail {
-            font-size: 12px;
-            color: var(--text-main);
-            margin-top: 3px;
-            word-break: break-word;
-        }
-
-        .badge-refused {
-            background: #fee2e2;
-            color: #991b1b;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-
-        .badge-allowed {
-            background: #dcfce7;
-            color: #166534;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-
-        .test-row {
-            display: flex;
-            gap: 8px;
-            align-items: flex-start;
-            font-size: 12px;
-            line-height: 1.45;
-            padding: 7px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .test-row:last-child {
-            border-bottom: none;
-        }
-
-        .test-flag {
-            flex: none;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-top: 1px;
-        }
-
-        .test-flag.pass {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .test-flag.fail {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .manual-step {
-            font-size: 12px;
-            line-height: 1.5;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .manual-step:last-child {
-            border-bottom: none;
-        }
-
-        .manual-step strong {
-            color: var(--text-main);
-        }
-
-        .caveat {
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            color: var(--warning-text);
-            font-size: 11.5px;
-            line-height: 1.5;
-            padding: 10px 12px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .btn-row .btn {
-            padding: 11px 8px;
-            font-size: 13px;
-        }
+        .test-row { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; line-height: 1.45; padding: 7px 0; border-bottom: 1px solid var(--border); }
+        .test-row:last-child { border-bottom: none; }
+        .test-flag { flex: none; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-top: 1px; }
+        .test-flag.pass { background: #dcfce7; color: #166534; }
+        .test-flag.fail { background: #fee2e2; color: #991b1b; }
+        .manual-step { font-size: 12px; line-height: 1.5; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .manual-step:last-child { border-bottom: none; }
+        .manual-step strong { color: var(--text-main); }
+        .caveat { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); font-size: 11.5px; line-height: 1.5; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; }
+        .btn-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .btn-row .btn { padding: 11px 8px; font-size: 13px; }
     </style>
 </head>
-
 <body>
-    <div class="device-simulator">
+<div class="device-simulator">
         <div id="screen-landing" class="screen auth-bg-full active">
             <div class="auth-top-bar">
                 <div class="auth-logo">AssetIQ</div>
@@ -1263,8 +492,7 @@
                 <p class="landing-subtitle">Track, manage, and optimise your organisation's assets seamlessly.</p>
                 <div class="btn-group-bottom">
                     <button class="btn btn-white nav-trigger" data-target="screen-login">Log in</button>
-                    <button class="btn btn-outline-white nav-trigger" data-target="screen-signup">Request
-                        access</button>
+                    <button class="btn btn-outline-white nav-trigger" data-target="screen-signup">Request access</button>
                 </div>
             </div>
         </div>
@@ -1278,30 +506,24 @@
                 <div id="login-error" class="error-msg"></div>
                 <div class="form-group icon-input">
                     <span class="input-icon">✉️</span>
-                    <input type="email" id="username-input" class="form-control-minimal" placeholder="Email"
-                        autocomplete="off">
+                    <input type="email" id="username-input" class="form-control-minimal" placeholder="Email" autocomplete="off">
                 </div>
                 <div class="form-group icon-input">
                     <span class="input-icon">🔒</span>
-                    <input type="password" id="password-input" class="form-control-minimal" placeholder="Password"
-                        autocomplete="off">
+                    <input type="password" id="password-input" class="form-control-minimal" placeholder="Password" autocomplete="off">
                 </div>
                 <div class="forgot-link"><a href="#" id="link-forgot">Forgot password?</a></div>
-                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">Demo
-                    accounts, tap to fill (password for all: <code>Demo2026pass!</code>)</div>
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">Demo accounts, tap to fill (password for all: <code>Demo2026pass!</code>)</div>
                 <div class="chip-row">
                     <button type="button" class="chip" data-u="demo@assetiq.app" data-p="Demo2026pass!">Staff</button>
-                    <button type="button" class="chip" data-u="admin@assetiq.app" data-p="Demo2026pass!">Org
-                        Manager</button>
-                    <button type="button" class="chip" data-u="viewer@assetiq.app"
-                        data-p="Demo2026pass!">Viewer</button>
+                    <button type="button" class="chip" data-u="admin@assetiq.app" data-p="Demo2026pass!">Org Manager</button>
+                    <button type="button" class="chip" data-u="viewer@assetiq.app" data-p="Demo2026pass!">Viewer</button>
                 </div>
                 <button id="btn-login" class="btn btn-blue mt-4">Log in</button>
                 <div class="auth-note">Demo installation with fictional data.</div>
                 <div class="divider"><span>or</span></div>
                 <button class="btn btn-outline-grey nav-trigger" data-target="screen-signup">Request access</button>
-                <div class="auth-hint" style="margin-top:14px;">Accounts are created by an administrator -- see
-                    SETUP.md. There is deliberately no self-service way to create one here.</div>
+                <div class="auth-hint" style="margin-top:14px;">Accounts are created by an administrator -- see SETUP.md. There is deliberately no self-service way to create one here.</div>
             </div>
         </div>
 
@@ -1312,13 +534,10 @@
             </div>
             <div class="auth-form-container">
                 <div class="form-group icon-input"><span class="input-icon">👤</span>
-                    <input type="text" id="signup-name" class="form-control-minimal" placeholder="Full Name">
-                </div>
+                    <input type="text" id="signup-name" class="form-control-minimal" placeholder="Full Name"></div>
                 <div class="form-group icon-input"><span class="input-icon">✉️</span>
-                    <input type="email" id="signup-email" class="form-control-minimal" placeholder="Work Email">
-                </div>
-                <div class="auth-hint">Your organisation administrator creates your account and issues your first
-                    sign-in details. Requesting access does not create an account.</div>
+                    <input type="email" id="signup-email" class="form-control-minimal" placeholder="Work Email"></div>
+                <div class="auth-hint">Your organisation administrator creates your account and issues your first sign-in details. Requesting access does not create an account.</div>
                 <button id="btn-signup" class="btn btn-blue mt-4">Request access</button>
                 <div class="divider"><span>or</span></div>
                 <button class="btn btn-outline-grey nav-trigger" data-target="screen-login">Log in</button>
@@ -1328,38 +547,30 @@
         <div id="screen-dashboard" class="screen">
             <div class="dash-header">
                 <div>
-                    <div class="dash-org">AssetIQ Demo <span id="dash-role-badge" class="role-pill user">Staff</span>
-                    </div>
+                    <div class="dash-org">AssetIQ Demo <span id="dash-role-badge" class="role-pill user">Staff</span></div>
                     <div class="dash-greeting">Hi, <span id="dash-username-display">User</span>! 👋</div>
                 </div>
                 <div id="btn-profile" class="profile-icon">👤</div>
             </div>
             <div class="content has-bottom-nav" style="padding-top: 8px;">
                 <div class="notice-banner">
-                    <div class="notice-head"><span class="notice-icon">⚠️</span><span class="notice-title">Action
-                            Required</span></div>
-                    <div class="notice-text">Volvo XC30 (VEH-0030) service due: <strong>June 2027</strong> or at
-                        <strong>75,000 km</strong>.</div>
+                    <div class="notice-head"><span class="notice-icon">⚠️</span><span class="notice-title">Action Required</span></div>
+                    <div class="notice-text">Volvo XC30 (VEH-0030) service due: <strong>June 2027</strong> or at <strong>75,000 km</strong>.</div>
                     <button class="btn-resolve" id="btn-resolve-volvo">Resolve Now →</button>
                 </div>
                 <div class="asset-toolbar">
                     <h2 class="section-title">Assets</h2>
                     <div class="toggle-wrapper"><span>Show Inactive</span>
-                        <label class="switch"><input type="checkbox" id="toggle-inactive" checked><span
-                                class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="toggle-inactive" checked><span class="slider"></span></label>
                     </div>
                 </div>
-                <div id="dash-assets-container">
-                    <div class="panel-text">Loading assets…</div>
-                </div>
+                <div id="dash-assets-container"><div class="panel-text">Loading assets…</div></div>
             </div>
             <div class="bottom-nav" id="dash-bottom-nav"></div>
         </div>
 
         <div id="screen-org" class="screen">
-            <div class="top-nav">
-                <div class="nav-title" style="margin-right: 0;">Organisation Portfolio 🏢</div>
-            </div>
+            <div class="top-nav"><div class="nav-title" style="margin-right: 0;">Organisation Portfolio 🏢</div></div>
             <div class="content has-bottom-nav" style="padding-top: 10px;">
                 <div class="metrics-grid">
                     <div class="metric-card">
@@ -1376,24 +587,18 @@
                 <div class="critical-issues-box">
                     <div>
                         <div style="font-weight: 700; font-size: 13px; color: #991b1b;">⚠️ Issues Alert</div>
-                        <div style="font-size: 11px; color: #b91c1c; margin-top: 2px;">See Tickets for assets needing
-                            service or audit.</div>
+                        <div style="font-size: 11px; color: #b91c1c; margin-top: 2px;">See Tickets for assets needing service or audit.</div>
                     </div>
-                    <button class="pill-btn nav-trigger" data-target="screen-issues-list"
-                        style="background:#dc2626; color:white; border:none;">Review</button>
+                    <button class="pill-btn nav-trigger" data-target="screen-issues-list" style="background:#dc2626; color:white; border:none;">Review</button>
                 </div>
                 <h2 class="section-title" style="margin: 16px 0 8px;">Organisation Registry</h2>
-                <div id="org-assets-container">
-                    <div class="panel-text">Loading…</div>
-                </div>
+                <div id="org-assets-container"><div class="panel-text">Loading…</div></div>
             </div>
             <div class="bottom-nav" id="org-bottom-nav"></div>
         </div>
 
         <div id="screen-issue" class="screen">
-            <div class="top-nav">
-                <div class="nav-title" style="margin-right: 0;">Log an Issue</div>
-            </div>
+            <div class="top-nav"><div class="nav-title" style="margin-right: 0;">Log an Issue</div></div>
             <div class="content has-bottom-nav">
                 <div class="form-group">
                     <label class="form-label" for="issue-asset-select">Select Asset</label>
@@ -1420,65 +625,46 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="issue-desc">Brief Summary</label>
-                    <textarea id="issue-desc" class="form-control" rows="3"
-                        placeholder="Describe what's wrong..."></textarea>
+                    <textarea id="issue-desc" class="form-control" rows="3" placeholder="Describe what's wrong..."></textarea>
                 </div>
-                <button id="btn-submit-issue" class="btn btn-primary" style="margin-top: 8px;">Submit Issue
-                    Ticket</button>
+                <button id="btn-submit-issue" class="btn btn-primary" style="margin-top: 8px;">Submit Issue Ticket</button>
             </div>
             <div class="bottom-nav" id="issue-bottom-nav"></div>
         </div>
 
         <div id="screen-scan-upload" class="screen">
-            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-dashboard">← Back</button>
-                <div class="nav-title">Scan a Nameplate</div>
-            </div>
+            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-dashboard">← Back</button><div class="nav-title">Scan a Nameplate</div></div>
             <div class="content has-bottom-nav">
-                <div class="panel-text" style="margin-bottom: 10px;">Upload a photo of the equipment's nameplate. Claude
-                    will suggest the manufacturer, model and serial number for you to check before anything is saved.
-                </div>
+                <div class="panel-text" style="margin-bottom: 10px;">Upload a photo of the equipment's nameplate. Claude will suggest the manufacturer, model and serial number for you to check before anything is saved.</div>
                 <div class="form-group">
                     <label class="form-label">Nameplate photograph</label>
                     <input type="file" id="scan-image-input" accept="image/*" class="form-control">
                 </div>
                 <button id="btn-scan-read" class="btn btn-primary">Read nameplate</button>
                 <div id="scan-status" class="auth-hint" style="margin-top:10px;"></div>
-                <div class="panel-text" style="margin-top:12px;font-size:11px;">The photo is sent to the AI service for
-                    reading and is not stored. Only the details you confirm on the next screen are saved.</div>
+                <div class="panel-text" style="margin-top:12px;font-size:11px;">The photo is sent to the AI service for reading and is not stored. Only the details you confirm on the next screen are saved.</div>
             </div>
             <div class="bottom-nav" id="scan-upload-bottom-nav"></div>
         </div>
 
         <div id="screen-scan-review" class="screen">
-            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-scan-upload">← Back</button>
-                <div class="nav-title">Check and Confirm</div>
-            </div>
+            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-scan-upload">← Back</button><div class="nav-title">Check and Confirm</div></div>
             <div class="content has-bottom-nav">
-                <div class="panel-text" style="margin-bottom: 10px;">Nothing is saved until you confirm. Fields the AI
-                    could not read are marked unresolved and left blank for you to fill in.</div>
+                <div class="panel-text" style="margin-bottom: 10px;">Nothing is saved until you confirm. Fields the AI could not read are marked unresolved and left blank for you to fill in.</div>
                 <div class="panel-box" id="scan-ai-reading"></div>
-                <div class="form-group"><label class="form-label">Asset name</label><input type="text" id="scan-name"
-                        class="form-control" placeholder="e.g. Rooftop HVAC Unit"></div>
-                <div class="form-group"><label class="form-label">Icon (one emoji)</label><input type="text"
-                        id="scan-icon" class="form-control" placeholder="e.g. 🔧" maxlength="2"></div>
-                <div class="form-group"><label class="form-label">Location</label><input type="text" id="scan-location"
-                        class="form-control" placeholder="e.g. Processing Hall"></div>
-                <div class="form-group"><label class="form-label">Make / Manufacturer</label><input type="text"
-                        id="scan-make" class="form-control"></div>
-                <div class="form-group"><label class="form-label">Model</label><input type="text" id="scan-model"
-                        class="form-control"></div>
-                <div class="form-group"><label class="form-label">Serial number</label><input type="text" id="scan-sn"
-                        class="form-control"></div>
-                <button id="btn-scan-confirm" class="btn btn-primary" style="margin-top: 8px;">Confirm and save
-                    asset</button>
+                <div class="form-group"><label class="form-label">Asset name</label><input type="text" id="scan-name" class="form-control" placeholder="e.g. Rooftop HVAC Unit"></div>
+                <div class="form-group"><label class="form-label">Icon (one emoji)</label><input type="text" id="scan-icon" class="form-control" placeholder="e.g. 🔧" maxlength="2"></div>
+                <div class="form-group"><label class="form-label">Location</label><input type="text" id="scan-location" class="form-control" placeholder="e.g. Processing Hall"></div>
+                <div class="form-group"><label class="form-label">Make / Manufacturer</label><input type="text" id="scan-make" class="form-control"></div>
+                <div class="form-group"><label class="form-label">Model</label><input type="text" id="scan-model" class="form-control"></div>
+                <div class="form-group"><label class="form-label">Serial number</label><input type="text" id="scan-sn" class="form-control"></div>
+                <button id="btn-scan-confirm" class="btn btn-primary" style="margin-top: 8px;">Confirm and save asset</button>
             </div>
             <div class="bottom-nav" id="scan-review-bottom-nav"></div>
         </div>
 
         <div id="screen-issues-list" class="screen">
-            <div class="top-nav">
-                <div class="nav-title" style="margin-right: 0;">Organisation Tickets 📋</div>
-            </div>
+            <div class="top-nav"><div class="nav-title" style="margin-right: 0;">Organisation Tickets 📋</div></div>
             <div class="content has-bottom-nav" style="padding-top: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <div class="issues-tabs" style="margin-bottom: 0;">
@@ -1486,29 +672,22 @@
                         <button class="pill-btn" id="filter-open">Open</button>
                         <button class="pill-btn" id="filter-resolved">Resolved</button>
                     </div>
-                    <button class="pill-btn" id="btn-create-admin-ticket"
-                        style="background: var(--primary); color: white; border: none;">+ Log Ticket</button>
+                    <button class="pill-btn" id="btn-create-admin-ticket" style="background: var(--primary); color: white; border: none;">+ Log Ticket</button>
                 </div>
-                <div id="admin-issues-container">
-                    <div class="panel-text">Loading…</div>
-                </div>
+                <div id="admin-issues-container"><div class="panel-text">Loading…</div></div>
             </div>
             <div class="bottom-nav" id="issues-list-bottom-nav"></div>
         </div>
 
         <div id="screen-ai" class="screen">
-            <div class="top-nav">
-                <div class="nav-title" style="margin-right: 0;">AssetIQ Assistant ✨</div>
-            </div>
+            <div class="top-nav"><div class="nav-title" style="margin-right: 0;">AssetIQ Assistant ✨</div></div>
             <div class="content has-bottom-nav">
                 <div class="chat-container">
                     <div class="chat-messages" id="chat-messages">
-                        <div class="chat-bubble bot">Hello! I am your asset intelligence copilot. Ask me about asset
-                            values, maintenance, or warranty expirations.</div>
+                        <div class="chat-bubble bot">Hello! I am your asset intelligence copilot. Ask me about asset values, maintenance, or warranty expirations.</div>
                     </div>
                     <div class="chat-input-area">
-                        <input type="text" id="chat-input" class="chat-input"
-                            placeholder="Ask about assets, policies, valuations...">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Ask about assets, policies, valuations...">
                         <button id="chat-send-btn" class="chat-send-btn">➤</button>
                     </div>
                 </div>
@@ -1518,8 +697,7 @@
 
         <div id="screen-summary" class="screen">
             <div class="top-nav">
-                <button class="back-btn nav-trigger" id="summary-back-btn" data-target="screen-dashboard">←
-                    Back</button>
+                <button class="back-btn nav-trigger" id="summary-back-btn" data-target="screen-dashboard">← Back</button>
                 <div class="nav-title">Asset Overview</div>
             </div>
             <div class="content">
@@ -1528,22 +706,14 @@
                     <div id="sum-name" style="font-size: 18px; font-weight: 700;">Asset Name</div>
                     <div id="sum-id" style="color: var(--text-muted); font-size: 13px;">ID: XXX-0000</div>
                 </div>
-                <div class="summary-badge-banner"><span>📍</span><span><strong>Location:</strong> <span
-                            id="sum-location">—</span></span></div>
-                <div class="form-group"><label class="form-label">Make / Manufacturer</label><input type="text"
-                        id="sum-make" class="form-control" disabled></div>
-                <div class="form-group"><label class="form-label">Model / Variant</label><input type="text"
-                        id="sum-model" class="form-control" disabled></div>
-                <div class="form-group"><label class="form-label">Serial Number</label><input type="text" id="sum-sn"
-                        class="form-control" disabled></div>
-                <div class="form-group"><label class="form-label">Lifecycle / Target Replacement</label><input
-                        type="text" id="sum-replace" class="form-control" disabled></div>
-                <div class="form-group"><label class="form-label">Condition</label><input type="text" id="sum-condition"
-                        class="form-control" disabled></div>
-                <div class="form-group"><label class="form-label">Latest condition note</label><input type="text"
-                        id="sum-notes" class="form-control" disabled></div>
-                <button id="btn-goto-edit" class="btn btn-primary" style="margin-top: 10px;">Edit Asset Details
-                    ✏️</button>
+                <div class="summary-badge-banner"><span>📍</span><span><strong>Location:</strong> <span id="sum-location">—</span></span></div>
+                <div class="form-group"><label class="form-label">Make / Manufacturer</label><input type="text" id="sum-make" class="form-control" disabled></div>
+                <div class="form-group"><label class="form-label">Model / Variant</label><input type="text" id="sum-model" class="form-control" disabled></div>
+                <div class="form-group"><label class="form-label">Serial Number</label><input type="text" id="sum-sn" class="form-control" disabled></div>
+                <div class="form-group"><label class="form-label">Lifecycle / Target Replacement</label><input type="text" id="sum-replace" class="form-control" disabled></div>
+                <div class="form-group"><label class="form-label">Condition</label><input type="text" id="sum-condition" class="form-control" disabled></div>
+                <div class="form-group"><label class="form-label">Latest condition note</label><input type="text" id="sum-notes" class="form-control" disabled></div>
+                <button id="btn-goto-edit" class="btn btn-primary" style="margin-top: 10px;">Edit Asset Details ✏️</button>
             </div>
         </div>
 
@@ -1553,55 +723,39 @@
                 <div class="nav-title" id="edit-screen-title">Edit Details</div>
             </div>
             <div class="content">
-                <div id="admin-management-fields"
-                    style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px; margin-bottom: 16px;">
-                    <div style="font-size: 12px; font-weight: 700; color: #1e40af; margin-bottom: 8px;">🔑 Admin
-                        Privileged Fields</div>
-                    <div class="form-group"><label class="form-label">Serial Number (SN)</label><input type="text"
-                            id="edit-sn" class="form-control" style="background: white;"></div>
-                    <div class="form-group"><label class="form-label">Assigned User</label><input type="text"
-                            id="edit-assigned" class="form-control" style="background: white;"></div>
-                    <div class="form-group"><label class="form-label">Branch / Physical Location</label><input
-                            type="text" id="edit-location" class="form-control" style="background: white;"></div>
-                    <div class="form-group" style="margin-bottom: 0;"><label class="form-label">Target Replacement
-                            Cycle</label><input type="text" id="edit-replace" class="form-control"
-                            style="background: white;"></div>
+                <div id="admin-management-fields" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; font-weight: 700; color: #1e40af; margin-bottom: 8px;">🔑 Admin Privileged Fields</div>
+                    <div class="form-group"><label class="form-label">Serial Number (SN)</label><input type="text" id="edit-sn" class="form-control" style="background: white;"></div>
+                    <div class="form-group"><label class="form-label">Assigned User</label><input type="text" id="edit-assigned" class="form-control" style="background: white;"></div>
+                    <div class="form-group"><label class="form-label">Branch / Physical Location</label><input type="text" id="edit-location" class="form-control" style="background: white;"></div>
+                    <div class="form-group" style="margin-bottom: 0;"><label class="form-label">Target Replacement Cycle</label><input type="text" id="edit-replace" class="form-control" style="background: white;"></div>
                 </div>
                 <div id="staff-lock-note" class="summary-badge-banner" style="display: none;">
-                    <span>🔒</span><span>Serial number, assigned user, location and replacement cycle can only be
-                        changed by an Org Manager.</span>
+                    <span>🔒</span><span>Serial number, assigned user, location and replacement cycle can only be changed by an Org Manager.</span>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Condition photo</label>
-                    <div style="border: 2px dashed var(--border); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; background: white;"
-                        onclick="triggerPhotoMock()">
+                    <div style="border: 2px dashed var(--border); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; background: white;" onclick="triggerPhotoMock()">
                         <div style="font-size: 24px;">📷</div>
-                        <div id="photo-status"
-                            style="font-size: 12px; color: var(--primary); font-weight: 500; margin-top: 2px;">Tap to
-                            capture or upload photo</div>
+                        <div id="photo-status" style="font-size: 12px; color: var(--primary); font-weight: 500; margin-top: 2px;">Tap to capture or upload photo</div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="edit-condition-select">Current Condition</label>
                     <select id="edit-condition-select" class="form-control">
-                        <option value="Excellent">Excellent</option>
-                        <option value="Good">Good</option>
-                        <option value="Fair">Fair</option>
-                        <option value="Poor">Poor</option>
+                        <option value="Excellent">Excellent</option><option value="Good">Good</option>
+                        <option value="Fair">Fair</option><option value="Poor">Poor</option>
                     </select>
                 </div>
                 <div class="form-group"><label class="form-label" for="edit-notes">Condition Notes</label>
-                    <textarea id="edit-notes" class="form-control" rows="3"
-                        placeholder="Add observations or notes..."></textarea>
-                </div>
+                    <textarea id="edit-notes" class="form-control" rows="3" placeholder="Add observations or notes..."></textarea></div>
                 <button id="btn-save-edit" class="btn btn-primary" style="margin-top: 8px;">Save Changes</button>
             </div>
         </div>
 
         <div id="screen-profile" class="screen">
             <div class="top-nav">
-                <button class="back-btn nav-trigger" id="profile-back-btn" data-target="screen-dashboard">←
-                    Back</button>
+                <button class="back-btn nav-trigger" id="profile-back-btn" data-target="screen-dashboard">← Back</button>
                 <div class="nav-title">Profile</div>
             </div>
             <div class="content">
@@ -1610,33 +764,24 @@
                     <div id="profile-username" style="font-size: 18px; font-weight: 700;">User Name</div>
                     <div class="profile-job" id="profile-job-title">—</div>
                 </div>
-                <div class="form-group"><label class="form-label">Department</label><input type="text" id="profile-dept"
-                        class="form-control" disabled></div>
+                <div class="form-group"><label class="form-label">Department</label><input type="text" id="profile-dept" class="form-control" disabled></div>
                 <div class="panel-box" id="profile-access"></div>
                 <div class="panel-text" id="profile-session-line" style="margin-bottom: 10px;"></div>
                 <div id="profile-admin-tools" style="display: none;">
-                    <button id="btn-open-audit" class="btn btn-secondary tool-btn"
-                        style="margin-bottom: 8px; justify-content: center;"><span>📜</span> Audit Log</button>
-                    <button id="btn-open-security" class="btn btn-secondary tool-btn"
-                        style="margin-bottom: 8px; justify-content: center;"><span>🛡️</span> Access Checks</button>
+                    <button id="btn-open-audit" class="btn btn-secondary tool-btn" style="margin-bottom: 8px; justify-content: center;"><span>📜</span> Audit Log</button>
+                    <button id="btn-open-security" class="btn btn-secondary tool-btn" style="margin-bottom: 8px; justify-content: center;"><span>🛡️</span> Access Checks</button>
                 </div>
-                <button id="btn-generate-report" class="btn btn-secondary"
-                    style="margin: 16px 0 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button id="btn-generate-report" class="btn btn-secondary" style="margin: 16px 0 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span>📊</span> Generate Asset Report (CSV)
                 </button>
-                <div class="logout-container" style="margin-top: 20px;"><button id="btn-logout"
-                        class="btn btn-danger">Log Out</button></div>
+                <div class="logout-container" style="margin-top: 20px;"><button id="btn-logout" class="btn btn-danger">Log Out</button></div>
             </div>
         </div>
 
         <div id="screen-audit" class="screen">
-            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-profile">← Back</button>
-                <div class="nav-title">Audit Log</div>
-            </div>
+            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-profile">← Back</button><div class="nav-title">Audit Log</div></div>
             <div class="content">
-                <div class="panel-text" style="margin-bottom: 10px;">Sign-ins, refusals and changes, newest first.
-                    Stored in Supabase (PostgreSQL); only Org Managers can read this log (enforced by Row Level
-                    Security).</div>
+                <div class="panel-text" style="margin-bottom: 10px;">Sign-ins, refusals and changes, newest first. Stored in Supabase (PostgreSQL); only Org Managers can read this log (enforced by Row Level Security).</div>
                 <div class="issues-tabs">
                     <button class="pill-btn active" id="audit-filter-all">All</button>
                     <button class="pill-btn" id="audit-filter-refused">Refused</button>
@@ -1646,19 +791,14 @@
         </div>
 
         <div id="screen-security" class="screen">
-            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-profile">← Back</button>
-                <div class="nav-title">Access Checks</div>
-            </div>
+            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-profile">← Back</button><div class="nav-title">Access Checks</div></div>
             <div class="content">
-                <div class="caveat">These checks make real requests to Supabase using your current sign-in. A PASS means
-                    PostgreSQL's Row Level Security -- not this page's JavaScript -- allowed or refused the request.
-                </div>
+                <div class="caveat">These checks make real requests to Supabase using your current sign-in. A PASS means PostgreSQL's Row Level Security -- not this page's JavaScript -- allowed or refused the request.</div>
                 <div class="panel-box">
                     <div class="panel-title">Current session</div>
                     <div class="panel-text" id="sec-session-info">—</div>
                     <div class="form-group" style="margin: 10px 0 0;">
-                        <label class="form-label" for="session-limit-select">Inactivity timeout (use 30 seconds to test
-                            expiry quickly)</label>
+                        <label class="form-label" for="session-limit-select">Inactivity timeout (use 30 seconds to test expiry quickly)</label>
                         <select id="session-limit-select" class="form-control">
                             <option value="600000">10 minutes (default)</option>
                             <option value="30000">30 seconds (testing)</option>
@@ -1667,37 +807,24 @@
                 </div>
                 <div class="panel-box">
                     <div class="panel-title">Real Supabase checks for your current role</div>
-                    <div class="panel-text" style="margin-bottom: 8px;">Attempts real reads/writes against Supabase as
-                        you, right now, and reports what the server allowed.</div>
+                    <div class="panel-text" style="margin-bottom: 8px;">Attempts real reads/writes against Supabase as you, right now, and reports what the server allowed.</div>
                     <button id="btn-run-checks" class="btn btn-primary">Run access checks</button>
                     <div id="check-results" style="margin-top: 10px;"></div>
                 </div>
                 <div class="panel-box">
                     <div class="panel-title">Manual test script</div>
-                    <div class="manual-step"><strong>T1 Clean sign-in.</strong> Open the prototype fresh. Tap a demo
-                        chip, then Log in. Expect the dashboard with no extra step.</div>
-                    <div class="manual-step"><strong>T2 No external dependency.</strong> Repeat T1 with no other account
-                        signed in anywhere.</div>
-                    <div class="manual-step"><strong>T3 Core functions.</strong> As Staff: open an asset, edit condition
-                        and notes, log an issue. As Org Manager: also edit the serial number and open Organisation and
-                        Tickets.</div>
-                    <div class="manual-step"><strong>T4 Role enforcement.</strong> As Viewer: the Edit button is hidden.
-                        Ask the AI Assistant about portfolio value: it refuses. Check the audit log as Org Manager for
-                        the refusal.</div>
-                    <div class="manual-step"><strong>T5 Signed-out access.</strong> Log out, then reload. Protected
-                        screens are unreachable until you sign in.</div>
-                    <div class="manual-step"><strong>T6 Failed sign-in.</strong> Enter a wrong password three times.
-                        Expect a 30-second lockout, then a normal sign-in works.</div>
-                    <div class="manual-step"><strong>T7 Sign-out and expiry.</strong> Log out, or set the 30-second
-                        timeout and wait. Expect a return to the login screen.</div>
-                    <div class="manual-step"><strong>T8 Audit log.</strong> As Org Manager, open Audit Log after T1 to
-                        T7 and screenshot the entries.</div>
+                    <div class="manual-step"><strong>T1 Clean sign-in.</strong> Open the prototype fresh. Tap a demo chip, then Log in. Expect the dashboard with no extra step.</div>
+                    <div class="manual-step"><strong>T2 No external dependency.</strong> Repeat T1 with no other account signed in anywhere.</div>
+                    <div class="manual-step"><strong>T3 Core functions.</strong> As Staff: open an asset, edit condition and notes, log an issue. As Org Manager: also edit the serial number and open Organisation and Tickets.</div>
+                    <div class="manual-step"><strong>T4 Role enforcement.</strong> As Viewer: the Edit button is hidden. Ask the AI Assistant about portfolio value: it refuses. Check the audit log as Org Manager for the refusal.</div>
+                    <div class="manual-step"><strong>T5 Signed-out access.</strong> Log out, then reload. Protected screens are unreachable until you sign in.</div>
+                    <div class="manual-step"><strong>T6 Failed sign-in.</strong> Enter a wrong password three times. Expect a 30-second lockout, then a normal sign-in works.</div>
+                    <div class="manual-step"><strong>T7 Sign-out and expiry.</strong> Log out, or set the 30-second timeout and wait. Expect a return to the login screen.</div>
+                    <div class="manual-step"><strong>T8 Audit log.</strong> As Org Manager, open Audit Log after T1 to T7 and screenshot the entries.</div>
                 </div>
                 <div class="panel-box">
                     <div class="panel-title">Reset demo</div>
-                    <div class="panel-text" style="margin-bottom: 8px;">Restores the seed assets and tickets to a known
-                        state. The audit log is append-only by design (see supabase.sql) and is not cleared by this. Org
-                        Manager only.</div>
+                    <div class="panel-text" style="margin-bottom: 8px;">Restores the seed assets and tickets to a known state. The audit log is append-only by design (see supabase.sql) and is not cleared by this. Org Manager only.</div>
                     <button id="btn-reset-demo" class="btn btn-secondary">Reset demo data</button>
                 </div>
             </div>
@@ -1707,8 +834,8 @@
     </div>
 
 
-
-
+    
+    
     <!-- Supabase (UMD build via CDN: works with a plain <script> tag, no build step) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
@@ -1719,12 +846,13 @@
            ================================================================== */
         const SUPABASE_URL = "https://humscpiktbhcvdckhzjf.supabase.co/rest/v1/";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1bXNjcGlrdGJoY3ZkY2toempmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDA1MTgsImV4cCI6MjEwNjYxNjUxOH0.pBBUfYALMedamK1FoyUOYZymn1DGbrgr77DXTLdqxgk";
+
         const SEED_ASSETS = [
-            {id: "LPT-4922", name: "MacBook Pro 16\"", icon: "💻", make: "Apple Inc.", model: "M3 Max (36GB RAM)", sn: "C02G80XYZ001", replace: "Oct 15, 2027", location: "Cape Town HQ - Desk 4B", assigned: "Sam Technician", condition: "Good", notes: "", photo: "", active: true, value: 65000},
-            {id: "PHN-8821", name: "iPhone 14 Pro", icon: "📱", make: "Apple Inc.", model: "128GB Deep Purple", sn: "DNQW9087ABCD", replace: "Nov 20, 2026", location: "Field / Assigned to Sam", assigned: "Sam Technician", condition: "Good", notes: "", photo: "", active: true, value: 22000},
-            {id: "VEH-0030", name: "Volvo XC30", icon: "🚗", make: "Volvo Car Corp", model: "XC30 AWD Electric", sn: "YV1XZ8820P20038", replace: "June 2027 / 75k km", location: "Fleet Parking Bay 12", assigned: "Field Ops Pool", condition: "Fair", notes: "Due for scheduled service.", photo: "", active: true, value: 420000},
-            {id: "LPT-1002", name: "ThinkPad X1 Carbon", icon: "💻", make: "Lenovo", model: "Gen 11 (i7/32GB)", sn: "PF-8910AB", replace: "Jan 10, 2027", location: "Johannesburg Office", assigned: "Sarah Jenkins", condition: "Good", notes: "", photo: "", active: true, value: 38000},
-            {id: "ACC-0931", name: "Magic Keyboard", icon: "⌨️", make: "Apple Inc.", model: "Magic Keyboard with Touch ID", sn: "MK283LL/A-884", replace: "Decommissioned", location: "IT Storage Cabinet C", assigned: "Storage Pool", condition: "Poor", notes: "Retired from active use.", photo: "", active: false, value: 0}
+            { id: "LPT-4922", name: "MacBook Pro 16\"", icon: "💻", make: "Apple Inc.", model: "M3 Max (36GB RAM)", sn: "C02G80XYZ001", replace: "Oct 15, 2027", location: "Cape Town HQ - Desk 4B", assigned: "Sam Technician", condition: "Good", notes: "", photo: "", active: true, value: 65000 },
+            { id: "PHN-8821", name: "iPhone 14 Pro", icon: "📱", make: "Apple Inc.", model: "128GB Deep Purple", sn: "DNQW9087ABCD", replace: "Nov 20, 2026", location: "Field / Assigned to Sam", assigned: "Sam Technician", condition: "Good", notes: "", photo: "", active: true, value: 22000 },
+            { id: "VEH-0030", name: "Volvo XC30", icon: "🚗", make: "Volvo Car Corp", model: "XC30 AWD Electric", sn: "YV1XZ8820P20038", replace: "June 2027 / 75k km", location: "Fleet Parking Bay 12", assigned: "Field Ops Pool", condition: "Fair", notes: "Due for scheduled service.", photo: "", active: true, value: 420000 },
+            { id: "LPT-1002", name: "ThinkPad X1 Carbon", icon: "💻", make: "Lenovo", model: "Gen 11 (i7/32GB)", sn: "PF-8910AB", replace: "Jan 10, 2027", location: "Johannesburg Office", assigned: "Sarah Jenkins", condition: "Good", notes: "", photo: "", active: true, value: 38000 },
+            { id: "ACC-0931", name: "Magic Keyboard", icon: "⌨️", make: "Apple Inc.", model: "Magic Keyboard with Touch ID", sn: "MK283LL/A-884", replace: "Decommissioned", location: "IT Storage Cabinet C", assigned: "Storage Pool", condition: "Poor", notes: "Retired from active use.", photo: "", active: false, value: 0 }
         ];
 
         /* ------------------------------------------------------------------
@@ -1733,7 +861,7 @@
            ------------------------------------------------------------------ */
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 
             const screens = document.querySelectorAll('.screen');
             const navTriggers = document.querySelectorAll('.nav-trigger');
@@ -1805,7 +933,7 @@
             const orgAssetCount = document.getElementById('org-asset-count');
             const orgOpenTickets = document.getElementById('org-open-tickets');
 
-            const ROLE_INFO = {user: {label: 'Staff', pill: 'user'}, admin: {label: 'Org Manager', pill: 'admin'}, viewer: {label: 'Viewer', pill: 'viewer'}};
+            const ROLE_INFO = { user: { label: 'Staff', pill: 'user' }, admin: { label: 'Org Manager', pill: 'admin' }, viewer: { label: 'Viewer', pill: 'viewer' } };
             const PERM_LABELS = {
                 view_assets: 'View assets', log_issue: 'Log an issue ticket',
                 edit_asset_basic: 'Update condition, notes and photo',
@@ -1825,7 +953,7 @@
                 view_org: ['admin'], manage_tickets: ['admin'], view_audit: ['admin'], reset_demo: ['admin'],
                 scan_create_asset: ['user', 'admin']
             };
-            function decide(role, perm) {return !!role && !!PERMS[perm] && PERMS[perm].indexOf(role) !== -1;}
+            function decide(role, perm) { return !!role && !!PERMS[perm] && PERMS[perm].indexOf(role) !== -1; }
 
             let currentUser = null;      // { id, email, role, name, title, dept }
             let session = null;          // { last }
@@ -1835,14 +963,14 @@
             let auditFilter = 'all';
             const attempts = {};         // email -> {count, until} -- in-memory, resets on reload (see README limitations)
 
-            function esc(s) {return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));}
+            function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
             let toastTimer = null;
             function toast(msg, kind) {
                 toastEl.textContent = msg;
                 toastEl.className = 'toast show ' + (kind || 'ok');
                 clearTimeout(toastTimer);
-                toastTimer = setTimeout(() => {toastEl.className = 'toast ' + (kind || 'ok');}, 3200);
+                toastTimer = setTimeout(() => { toastEl.className = 'toast ' + (kind || 'ok'); }, 3200);
             }
 
             /* ----------------------------------------------------------------
@@ -1853,8 +981,8 @@
                ---------------------------------------------------------------- */
             function audit(action, detail, denied) {
                 if (!currentUser) return Promise.resolve();
-                return sb.from('audit_log').insert([{user_email: currentUser.email, action, detail: detail || '', denied: !!denied}])
-                    .then(({error}) => {if (error) console.warn('Could not write audit entry:', error.message);});
+                return sb.from('audit_log').insert([{ user_email: currentUser.email, action, detail: detail || '', denied: !!denied }])
+                    .then(({ error }) => { if (error) console.warn('Could not write audit entry:', error.message); });
             }
 
             /* ----------------------------------------------------------------
@@ -1901,7 +1029,7 @@
 
             function navigateTo(screenId) {
                 if (PUBLIC_SCREENS.indexOf(screenId) === -1) {
-                    if (!currentUser) {show('screen-login'); showLoginMessage('Please sign in to continue.', 'info'); return;}
+                    if (!currentUser) { show('screen-login'); showLoginMessage('Please sign in to continue.', 'info'); return; }
                     const perm = SCREEN_PERM[screenId];
                     if (!perm || !decide(currentUser.role, perm)) {
                         toast('Not authorised to open that screen.', 'bad');
@@ -1947,12 +1075,12 @@
                ---------------------------------------------------------------- */
 
             async function seedAssetsAndTickets() {
-                const {error: assetErr} = await sb.from('assets').upsert(SEED_ASSETS);
+                const { error: assetErr } = await sb.from('assets').upsert(SEED_ASSETS);
                 if (assetErr) throw assetErr;
-                const {data: existingTickets, error: ticketReadErr} = await sb.from('tickets').select('id').limit(1);
+                const { data: existingTickets, error: ticketReadErr } = await sb.from('tickets').select('id').limit(1);
                 if (ticketReadErr) throw ticketReadErr;
                 if (!existingTickets || existingTickets.length === 0) {
-                    const {error: ticketErr} = await sb.from('tickets').insert([{
+                    const { error: ticketErr } = await sb.from('tickets').insert([{
                         reference: 'TCK-88201', asset_id: 'VEH-0030', asset_label: 'Volvo XC30', type: 'Maintenance / Service',
                         urgency: 'High', description: '75,000 km scheduled factory service required.', status: 'open',
                         created_by: 'admin@assetiq.app'
@@ -1963,17 +1091,17 @@
 
             /* ---------------- Auth state ---------------- */
             sb.auth.onAuthStateChange(async (_event, authSession) => {
-                if (!authSession) {currentUser = null; return;}
+                if (!authSession) { currentUser = null; return; }
                 const user = authSession.user;
                 try {
-                    const {data: profile, error} = await sb.from('profiles').select('*').eq('id', user.id).single();
+                    const { data: profile, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
                     if (error || !profile) {
                         showLoginMessage('Signed in, but no profile record exists for this account. Run "Create demo accounts & data" first, or ask your administrator to create your profile.', 'info');
                         await sb.auth.signOut();
                         return;
                     }
-                    currentUser = {id: user.id, email: user.email, role: profile.role, name: profile.name, title: profile.title, dept: profile.dept};
-                    session = {last: Date.now()};
+                    currentUser = { id: user.id, email: user.email, role: profile.role, name: profile.name, title: profile.title, dept: profile.dept };
+                    session = { last: Date.now() };
                     applyRoleUI();
                     renderBottomNavbars();
                     navigateTo('screen-dashboard');
@@ -1986,7 +1114,7 @@
                 const email = usernameInput.value.trim().toLowerCase();
                 const password = passwordInput.value;
                 loginError.style.display = 'none';
-                if (!email || !password) {showLoginMessage('Email and password cannot be blank.'); return;}
+                if (!email || !password) { showLoginMessage('Email and password cannot be blank.'); return; }
 
                 const now = Date.now();
                 const rec = attempts[email];
@@ -1994,12 +1122,12 @@
                     showLoginMessage('Too many failed attempts. Try again in ' + Math.ceil((rec.until - now) / 1000) + ' seconds.');
                     return;
                 }
-                const {error} = await sb.auth.signInWithPassword({email, password});
+                const { error } = await sb.auth.signInWithPassword({ email, password });
                 if (error) {
-                    const r = attempts[email] || {count: 0};
+                    const r = attempts[email] || { count: 0 };
                     r.count += 1;
-                    if (r.count >= 3) {r.until = Date.now() + 30000; r.count = 0; showLoginMessage('Too many failed attempts. Locked for 30 seconds.');}
-                    else {showLoginMessage('Incorrect email or password (attempt ' + r.count + ' of 3).');}
+                    if (r.count >= 3) { r.until = Date.now() + 30000; r.count = 0; showLoginMessage('Too many failed attempts. Locked for 30 seconds.'); }
+                    else { showLoginMessage('Incorrect email or password (attempt ' + r.count + ' of 3).'); }
                     attempts[email] = r;
                 } else {
                     delete attempts[email];
@@ -2028,14 +1156,14 @@
             document.getElementById('btn-open-security').addEventListener('click', () => navigateTo('screen-security'));
 
             signupBtn.addEventListener('click', () => {
-                if (!signupName.value.trim() || !signupEmail.value.trim()) {toast('Enter your name and work email to request access.', 'bad'); return;}
+                if (!signupName.value.trim() || !signupEmail.value.trim()) { toast('Enter your name and work email to request access.', 'bad'); return; }
                 signupName.value = ''; signupEmail.value = '';
                 show('screen-login');
                 showLoginMessage('Request recorded locally. Accounts are created by your organisation administrator, so no account exists yet.', 'info');
             });
 
             /* ---------------- Session idle expiry (client-side; see README) ---------------- */
-            ['pointerdown', 'keydown', 'scroll'].forEach(evt => document.addEventListener(evt, () => {if (session) session.last = Date.now();}, {passive: true, capture: true}));
+            ['pointerdown', 'keydown', 'scroll'].forEach(evt => document.addEventListener(evt, () => { if (session) session.last = Date.now(); }, { passive: true, capture: true }));
             function formatRemaining() {
                 if (!session) return '—';
                 const left = Math.max(0, sessionLimit - (Date.now() - session.last));
@@ -2070,7 +1198,7 @@
                 if (role === 'admin') navHTML = tab('screen-dashboard', '📦', 'My Assets') + tab('screen-org', '🏢', 'Organisation') + scanTab + tab('screen-issues-list', '📋', 'Tickets') + tab('screen-ai', '✨', 'AI Assist');
                 else if (role === 'viewer') navHTML = tab('screen-dashboard', '📦', 'Assets') + tab('screen-ai', '✨', 'AI Assist');
                 else navHTML = tab('screen-dashboard', '📦', 'My Assets') + scanTab + tab('screen-issue', '⚠️', 'Log an Issue') + tab('screen-ai', '✨', 'AI Assist');
-                navContainers.forEach(id => {const el = document.getElementById(id); if (el) el.innerHTML = navHTML;});
+                navContainers.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = navHTML; });
                 document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', e => navigateTo(e.currentTarget.getAttribute('data-tab'))));
             }
 
@@ -2103,8 +1231,8 @@
 
             function renderDashboard() {
                 dashAssetsContainer.innerHTML = '<div class="panel-text">Loading assets…</div>';
-                sb.from('assets').select('*').then(({data, error}) => {
-                    if (error) {dashAssetsContainer.innerHTML = '<div class="panel-text">Could not load assets: ' + esc(error.message) + '</div>'; return;}
+                sb.from('assets').select('*').then(({ data, error }) => {
+                    if (error) { dashAssetsContainer.innerHTML = '<div class="panel-text">Could not load assets: ' + esc(error.message) + '</div>'; return; }
                     dashAssetsContainer.innerHTML = (data || []).map(assetCardHtml).join('') || '<div class="panel-text">No assets yet. Ask an Org Manager to seed demo data.</div>';
                     wireAssetCards(dashAssetsContainer);
                     applyInactiveToggle();
@@ -2118,8 +1246,8 @@
 
             function renderOrg() {
                 orgAssetsContainer.innerHTML = '<div class="panel-text">Loading…</div>';
-                sb.from('assets').select('*').then(({data, error}) => {
-                    if (error) {orgAssetsContainer.innerHTML = '<div class="panel-text">Could not load: ' + esc(error.message) + '</div>'; return;}
+                sb.from('assets').select('*').then(({ data, error }) => {
+                    if (error) { orgAssetsContainer.innerHTML = '<div class="panel-text">Could not load: ' + esc(error.message) + '</div>'; return; }
                     const assets = data || [];
                     const total = assets.reduce((sum, a) => sum + (Number(a.value) || 0), 0);
                     orgTotalValue.textContent = 'R ' + total.toLocaleString();
@@ -2127,13 +1255,13 @@
                     orgAssetsContainer.innerHTML = assets.map(assetCardHtml).join('');
                     wireAssetCards(orgAssetsContainer);
                 });
-                sb.from('tickets').select('*', {count: 'exact', head: true}).eq('status', 'open').then(({count}) => {orgOpenTickets.textContent = count || 0;});
+                sb.from('tickets').select('*', { count: 'exact', head: true }).eq('status', 'open').then(({ count }) => { orgOpenTickets.textContent = count || 0; });
             }
 
             function openSummary(id) {
                 currentAssetId = id;
-                sb.from('assets').select('*').eq('id', id).single().then(({data: a, error}) => {
-                    if (error || !a) {toast('Asset not found.', 'bad'); return;}
+                sb.from('assets').select('*').eq('id', id).single().then(({ data: a, error }) => {
+                    if (error || !a) { toast('Asset not found.', 'bad'); return; }
                     sumIcon.textContent = a.icon || '📦'; sumName.textContent = a.name; sumId.textContent = 'ID: ' + id;
                     sumMake.value = a.make || ''; sumModel.value = a.model || ''; sumSn.value = a.sn || '';
                     sumReplace.value = a.replace || ''; sumLocation.textContent = a.location || '';
@@ -2144,8 +1272,8 @@
             }
 
             gotoEditBtn.addEventListener('click', () => {
-                if (!decide(currentUser.role, 'edit_asset_basic')) {toast('Not authorised for this action.', 'bad'); return;}
-                sb.from('assets').select('*').eq('id', currentAssetId).single().then(({data: a}) => {
+                if (!decide(currentUser.role, 'edit_asset_basic')) { toast('Not authorised for this action.', 'bad'); return; }
+                sb.from('assets').select('*').eq('id', currentAssetId).single().then(({ data: a }) => {
                     pendingPhoto = '';
                     document.getElementById('photo-status').textContent = 'Tap to capture or upload photo';
                     editCondition.value = a.condition || 'Good';
@@ -2153,7 +1281,7 @@
                     const priv = decide(currentUser.role, 'edit_asset_privileged');
                     adminManagementFields.style.display = priv ? 'block' : 'none';
                     staffLockNote.style.display = priv ? 'none' : 'block';
-                    if (priv) {editSn.value = a.sn || ''; editAssigned.value = a.assigned || ''; editLocation.value = a.location || ''; editReplace.value = a.replace || '';}
+                    if (priv) { editSn.value = a.sn || ''; editAssigned.value = a.assigned || ''; editLocation.value = a.location || ''; editReplace.value = a.replace || ''; }
                     navigateTo('screen-edit');
                 });
             });
@@ -2171,30 +1299,30 @@
                 // independently re-checks this on the server, so a forged
                 // request (e.g. typed directly into the browser console) is
                 // refused there too.
-                const update = {condition: editCondition.value, notes: editNotes.value.trim()};
+                const update = { condition: editCondition.value, notes: editNotes.value.trim() };
                 if (pendingPhoto) update.photo = pendingPhoto;
                 if (decide(currentUser.role, 'edit_asset_privileged')) {
                     update.sn = editSn.value; update.assigned = editAssigned.value;
                     update.location = editLocation.value; update.replace = editReplace.value;
                 }
                 runGuarded('Asset updated (' + currentAssetId + ')', () => sb.from('assets').update(update).eq('id', currentAssetId).select())
-                    .then(({data}) => {
-                        if (!data || data.length === 0) {toast('No change was applied -- your role may not permit it.', 'bad'); return;}
+                    .then(({ data }) => {
+                        if (!data || data.length === 0) { toast('No change was applied -- your role may not permit it.', 'bad'); return; }
                         toast('Changes saved and logged.', 'ok'); openSummary(currentAssetId);
-                    }).catch(() => { });
+                    }).catch(() => {});
             });
 
             /* ---------------- Issues / tickets ---------------- */
             function renderIssueForm() {
-                sb.from('assets').select('*').then(({data}) => {
+                sb.from('assets').select('*').then(({ data }) => {
                     issueAssetSelect.innerHTML = (data || []).map(a => `<option value="${a.id}">${a.icon || ''} ${esc(a.name)} (${a.id})</option>`).join('');
                 });
             }
 
             resolveVolvoBtn.addEventListener('click', () => {
-                if (currentUser.role === 'admin') {navigateTo('screen-issues-list'); return;}
+                if (currentUser.role === 'admin') { navigateTo('screen-issues-list'); return; }
                 renderIssueForm();
-                setTimeout(() => {issueAssetSelect.value = 'VEH-0030';}, 300);
+                setTimeout(() => { issueAssetSelect.value = 'VEH-0030'; }, 300);
                 issueTypeSelect.value = 'Maintenance / Service'; issueUrgencySelect.value = 'High';
                 issueDesc.value = 'Scheduling routine 75,000 km check.';
                 navigateTo('screen-issue');
@@ -2211,7 +1339,7 @@
                     alert('Your administrator has been notified.\n\nTicket Reference: ' + ref);
                     issueDesc.value = '';
                     navigateTo('screen-dashboard');
-                }).catch(() => { });
+                }).catch(() => {});
             });
 
             function ticketCardHtml(t) {
@@ -2228,8 +1356,8 @@
             let allTickets = [];
             function renderTickets() {
                 document.getElementById('admin-issues-container').innerHTML = '<div class="panel-text">Loading…</div>';
-                sb.from('tickets').select('*').order('created_at', {ascending: false}).then(({data, error}) => {
-                    if (error) {document.getElementById('admin-issues-container').innerHTML = '<div class="panel-text">Could not load tickets: ' + esc(error.message) + '</div>'; return;}
+                sb.from('tickets').select('*').order('created_at', { ascending: false }).then(({ data, error }) => {
+                    if (error) { document.getElementById('admin-issues-container').innerHTML = '<div class="panel-text">Could not load tickets: ' + esc(error.message) + '</div>'; return; }
                     allTickets = data || [];
                     renderTicketFilter('all');
                 });
@@ -2240,8 +1368,8 @@
                 container.innerHTML = rows.map(ticketCardHtml).join('') || '<div class="panel-text">No tickets.</div>';
                 container.querySelectorAll('.resolve-ticket').forEach(btn => btn.addEventListener('click', e => {
                     const id = e.currentTarget.getAttribute('data-id');
-                    runGuarded('Ticket resolved', () => sb.from('tickets').update({status: 'resolved'}).eq('id', id))
-                        .then(() => {toast('Ticket marked resolved.', 'ok'); renderTickets();}).catch(() => { });
+                    runGuarded('Ticket resolved', () => sb.from('tickets').update({ status: 'resolved' }).eq('id', id))
+                        .then(() => { toast('Ticket marked resolved.', 'ok'); renderTickets(); }).catch(() => {});
                 }));
             }
             ['all', 'open', 'resolved'].forEach(f => document.getElementById('filter-' + f).addEventListener('click', e => {
@@ -2257,7 +1385,7 @@
                 runGuarded('Ticket created (' + ref + ')', () => sb.from('tickets').insert([{
                     reference: ref, asset_id: null, asset_label: title, type: 'Manual', urgency: 'Medium', description: title,
                     status: 'open', created_by: currentUser.email
-                }])).then(() => renderTickets()).catch(() => { });
+                }])).then(() => renderTickets()).catch(() => {});
             });
 
             /* ----------------------------------------------------------------
@@ -2288,13 +1416,13 @@
                 const fileInput = document.getElementById('scan-image-input');
                 const statusEl = document.getElementById('scan-status');
                 const file = fileInput.files && fileInput.files[0];
-                if (!file) {statusEl.textContent = 'Choose a photo first.'; return;}
+                if (!file) { statusEl.textContent = 'Choose a photo first.'; return; }
 
                 statusEl.textContent = 'Reading nameplate…';
                 try {
                     const base64 = await fileToBase64(file);
-                    const {data, error} = await sb.functions.invoke('scan-nameplate', {
-                        body: {image: base64, mimeType: file.type || 'image/jpeg'},
+                    const { data, error } = await sb.functions.invoke('scan-nameplate', {
+                        body: { image: base64, mimeType: file.type || 'image/jpeg' },
                     });
                     if (error) throw error;
                     if (data && data.error) throw new Error(data.error);
@@ -2330,7 +1458,7 @@
 
             document.getElementById('btn-scan-confirm').addEventListener('click', () => {
                 const name = document.getElementById('scan-name').value.trim();
-                if (!name) {toast('Give the asset a name first.', 'bad'); return;}
+                if (!name) { toast('Give the asset a name first.', 'bad'); return; }
                 const newAsset = {
                     id: 'AST-' + Math.floor(100000 + Math.random() * 900000),
                     name, icon: document.getElementById('scan-icon').value.trim() || '📦',
@@ -2346,11 +1474,11 @@
                 // supabase.sql as anything else, so a tampered request
                 // (e.g. Viewer calling this directly) is refused there too.
                 runGuarded('Asset registered from nameplate scan (' + newAsset.id + ')', () => sb.from('assets').insert([newAsset]).select())
-                    .then(({data}) => {
-                        if (!data || data.length === 0) {toast('Not authorised to register a new asset.', 'bad'); return;}
+                    .then(({ data }) => {
+                        if (!data || data.length === 0) { toast('Not authorised to register a new asset.', 'bad'); return; }
                         toast('Asset registered from the scanned nameplate.', 'ok');
                         openSummary(newAsset.id);
-                    }).catch(() => { });
+                    }).catch(() => {});
             });
 
             /* ---------------- Profile ---------------- */
@@ -2360,14 +1488,14 @@
             }
 
             generateReportBtn.addEventListener('click', () => {
-                sb.from('assets').select('*').then(({data}) => {
+                sb.from('assets').select('*').then(({ data }) => {
                     const full = decide(currentUser.role, 'view_org');
                     const rows = [full ? ['ID', 'Name', 'Make', 'Condition', 'Value'] : ['ID', 'Name', 'Condition']];
                     (data || []).forEach(a => {
                         rows.push(full ? [a.id, a.name, a.make || '', a.condition || '', String(a.value || 0)] : [a.id, a.name, a.condition || '']);
                     });
                     const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
-                    const blob = new Blob([csv], {type: 'text/csv'});
+                    const blob = new Blob([csv], { type: 'text/csv' });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url; link.download = full ? 'organisation_assets.csv' : 'my_assets.csv';
@@ -2380,12 +1508,12 @@
             /* ---------------- Audit log ---------------- */
             function fmtTime(ts) {
                 if (!ts) return '…';
-                return new Date(ts).toLocaleString([], {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'});
+                return new Date(ts).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
             function renderAudit() {
                 auditList.innerHTML = '<div class="panel-text">Loading…</div>';
-                sb.from('audit_log').select('*').order('ts', {ascending: false}).limit(200).then(({data, error}) => {
-                    if (error) {auditList.innerHTML = '<div class="panel-text">Could not load the audit log: ' + esc(error.message) + '</div>'; return;}
+                sb.from('audit_log').select('*').order('ts', { ascending: false }).limit(200).then(({ data, error }) => {
+                    if (error) { auditList.innerHTML = '<div class="panel-text">Could not load the audit log: ' + esc(error.message) + '</div>'; return; }
                     const rows = (data || []).filter(e => auditFilter === 'all' || e.denied);
                     auditList.innerHTML = rows.map(e => `
                         <div class="audit-item ${e.denied ? 'refused' : 'allowed'}">
@@ -2415,56 +1543,56 @@
                patterns are checked below, and this distinction is explained
                further in README.md.
                ---------------------------------------------------------------- */
-            function renderSecurity() {checkResults.innerHTML = '';}
+            function renderSecurity() { checkResults.innerHTML = ''; }
             document.getElementById('btn-run-checks').addEventListener('click', async () => {
                 const results = [];
-                const t = (name, pass) => results.push({name, pass: !!pass});
+                const t = (name, pass) => results.push({ name, pass: !!pass });
 
                 try {
-                    const {data} = await sb.from('profiles').select('id').eq('id', currentUser.id).single();
+                    const { data } = await sb.from('profiles').select('id').eq('id', currentUser.id).single();
                     t('Can read your own profile', !!data);
-                } catch (e) {t('Can read your own profile', false);}
+                } catch (e) { t('Can read your own profile', false); }
 
                 try {
-                    const {data} = await sb.from('profiles').select('id');
+                    const { data } = await sb.from('profiles').select('id');
                     const count = (data || []).length;
                     t('Profile visibility is correctly scoped (Org Manager sees all, others see only their own)',
                         currentUser.role === 'admin' ? count >= 3 : count === 1);
-                } catch (e) {t('Profile visibility is correctly scoped (Org Manager sees all, others see only their own)', false);}
+                } catch (e) { t('Profile visibility is correctly scoped (Org Manager sees all, others see only their own)', false); }
 
                 try {
-                    const {data: snap} = await sb.from('assets').select('*').limit(1);
+                    const { data: snap } = await sb.from('assets').select('*').limit(1);
                     if (snap && snap.length) {
                         const a = snap[0];
-                        const {data: updated} = await sb.from('assets').update({notes: a.notes}).eq('id', a.id).select();
+                        const { data: updated } = await sb.from('assets').update({ notes: a.notes }).eq('id', a.id).select();
                         const rowsAffected = (updated || []).length;
                         t('Can update a basic field (should pass for Staff and Org Manager, not Viewer)',
                             currentUser.role === 'viewer' ? rowsAffected === 0 : rowsAffected === 1);
-                    } else {t('Can update a basic field (should pass for Staff and Org Manager, not Viewer)', null);}
+                    } else { t('Can update a basic field (should pass for Staff and Org Manager, not Viewer)', null); }
                 } catch (e) {
                     t('Can update a basic field (should pass for Staff and Org Manager, not Viewer)', currentUser.role === 'viewer');
                 }
 
                 try {
-                    const {data: snap} = await sb.from('assets').select('*').limit(1);
+                    const { data: snap } = await sb.from('assets').select('*').limit(1);
                     if (snap && snap.length) {
                         const a = snap[0];
-                        const {data: updated} = await sb.from('assets').update({sn: a.sn}).eq('id', a.id).select();
+                        const { data: updated } = await sb.from('assets').update({ sn: a.sn }).eq('id', a.id).select();
                         const rowsAffected = (updated || []).length;
                         t('Can change the serial number (should only pass for Org Manager)', currentUser.role === 'admin' ? rowsAffected === 1 : rowsAffected === 0);
-                    } else {t('Can change the serial number (should only pass for Org Manager)', null);}
+                    } else { t('Can change the serial number (should only pass for Org Manager)', null); }
                 } catch (e) {
                     // Staff trips the trigger (a thrown error); Viewer is filtered out by the row policy before the trigger even runs.
                     t('Can change the serial number (should only pass for Org Manager)', currentUser.role !== 'admin');
                 }
 
                 try {
-                    const {data} = await sb.from('audit_log').delete().eq('id', '00000000-0000-0000-0000-000000000000').select();
+                    const { data } = await sb.from('audit_log').delete().eq('id', '00000000-0000-0000-0000-000000000000').select();
                     t('Deny by default: no one, not even Org Manager, can delete an audit entry', (data || []).length === 0);
-                } catch (e) {t('Deny by default: no one, not even Org Manager, can delete an audit entry', true);}
+                } catch (e) { t('Deny by default: no one, not even Org Manager, can delete an audit entry', true); }
 
-                try {const {data} = await sb.from('audit_log').select('id').limit(1); t('Can read the audit log (should only pass for Org Manager)', currentUser.role === 'admin' ? true : (data || []).length === 0);}
-                catch (e) {t('Can read the audit log (should only pass for Org Manager)', currentUser.role !== 'admin');}
+                try { const { data } = await sb.from('audit_log').select('id').limit(1); t('Can read the audit log (should only pass for Org Manager)', currentUser.role === 'admin' ? true : (data || []).length === 0); }
+                catch (e) { t('Can read the audit log (should only pass for Org Manager)', currentUser.role !== 'admin'); }
 
                 const passed = results.filter(r => r.pass).length;
                 checkResults.innerHTML = `<div class="panel-title" style="margin-bottom: 4px;">${passed} of ${results.length} checks passed, as ${ROLE_INFO[currentUser.role].label}</div>` +
@@ -2473,10 +1601,10 @@
             });
 
             document.getElementById('btn-reset-demo').addEventListener('click', async () => {
-                if (!decide(currentUser.role, 'reset_demo')) {toast('Not authorised for this action.', 'bad'); return;}
+                if (!decide(currentUser.role, 'reset_demo')) { toast('Not authorised for this action.', 'bad'); return; }
                 try {
                     await seedAssetsAndTickets();
-                    const {data: tickets} = await sb.from('tickets').select('id').order('created_at', {ascending: true});
+                    const { data: tickets } = await sb.from('tickets').select('id').order('created_at', { ascending: true });
                     const extra = (tickets || []).slice(1);
                     if (extra.length) await sb.from('tickets').delete().in('id', extra.map(t => t.id));
                     // The audit log is NOT cleared here. supabase.sql has no
@@ -2485,7 +1613,7 @@
                     // one. Resetting restores the asset and ticket data only.
                     await audit('Demo data reset', 'Seed assets and tickets restored. The audit log itself is append-only and was not cleared.', false);
                     toast('Assets and tickets reset. The audit log was kept, by design.', 'ok');
-                } catch (err) {toast('Reset failed: ' + err.message, 'bad');}
+                } catch (err) { toast('Reset failed: ' + err.message, 'bad'); }
             });
 
             /* ---------------- AI assistant (scripted; the valuation figure is real) ---------------- */
@@ -2503,7 +1631,7 @@
                     const lower = text.toLowerCase();
                     if (lower.includes('value') || lower.includes('cost') || lower.includes('worth')) {
                         if (decide(currentUser.role, 'view_org')) {
-                            const {data} = await sb.from('assets').select('value');
+                            const { data } = await sb.from('assets').select('value');
                             const total = (data || []).reduce((s, a) => s + (Number(a.value) || 0), 0);
                             botBubble.textContent = 'The organisation currently tracks R ' + total.toLocaleString() + ' across ' + (data || []).length + ' registered assets.';
                         } else {
@@ -2520,9 +1648,8 @@
                 }, 400);
             }
             chatSendBtn.addEventListener('click', sendChatMessage);
-            chatInput.addEventListener('keypress', e => {if (e.key === 'Enter') sendChatMessage();});
+            chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMessage(); });
         });
     </script>
 </body>
-
 </html>
