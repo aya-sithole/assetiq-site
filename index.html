@@ -252,6 +252,18 @@
         .demo-chip { background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.35); color: white; border-radius: 20px; padding: 7px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
         .demo-chip:active { background: rgba(255, 255, 255, 0.28); }
 
+        .status-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; text-transform: uppercase; }
+        .status-untested { background: #e5e7eb; color: #4b5563; }
+        .status-testing { background: #fef3c7; color: #92400e; }
+        .status-validated { background: #dcfce7; color: #166534; }
+        .status-invalidated { background: #fee2e2; color: #991b1b; }
+        .status-persevere { background: #dcfce7; color: #166534; }
+        .status-pivot { background: #fde68a; color: #92400e; }
+        .copilot-action-note { font-size: 10.5px; color: var(--text-muted); align-self: flex-start; margin-top: -6px; }
+        .canvas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .canvas-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px; font-size: 10.5px; }
+        .canvas-block-title { font-weight: 700; font-size: 9.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; letter-spacing: 0.02em; }
+
         .progress-bar { background: var(--border); border-radius: 8px; height: 8px; overflow: hidden; margin: 6px 0; }
         .progress-fill { background: var(--primary); height: 100%; }
         .progress-fill.over-limit { background: var(--danger); }
@@ -951,10 +963,37 @@
             <div class="top-nav"><div class="nav-title" style="margin-right:0;">AssetIQ Platform Admin 🛠️</div></div>
             <div class="content" style="padding-top:16px;">
                 <div class="panel-text" style="margin-bottom:12px;">You are signed in as the AssetIQ platform owner, not as a member of any customer organisation. This view shows each tenant's subscription plan, status and basic usage counts only -- never their assets, tickets or audit log (see README, "Privacy boundary: what the platform owner can and cannot see"). Revenue and payments below are billing records, not tenant operational data, which is why this view can show them.</div>
+                <button id="btn-open-copilot" class="btn btn-primary" style="margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:8px;"><span>🧭</span> Customer Discovery Co-pilot</button>
                 <div id="master-revenue-summary" class="panel-box"><div class="panel-text">Loading revenue…</div></div>
                 <div id="master-recent-payments" class="panel-box"><div class="panel-text">Loading payments…</div></div>
                 <div id="master-org-list"><div class="panel-text">Loading organisations…</div></div>
                 <div class="logout-container" style="margin-top:20px;"><button id="btn-master-logout" class="btn btn-danger">Log Out</button></div>
+            </div>
+        </div>
+
+        <div id="screen-copilot" class="screen">
+            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-master">← Back</button><div class="nav-title">Discovery Co-pilot</div></div>
+            <div class="content" style="padding-top:10px; display:flex; flex-direction:column;">
+                <div class="caveat">Applying Steve Blank's Customer Discovery methodology to AssetIQ itself (not any tenant's business). This is a real Claude conversation grounded in this project's actual signup/revenue data -- it can save hypotheses, log interviews, update the Business Model Canvas and record pivot/persevere decisions as you talk, not just discuss doing so.</div>
+                <div class="issues-tabs" style="margin-bottom: 10px;">
+                    <button class="pill-btn active nav-trigger" data-target="screen-copilot" id="copilot-view-chat">💬 Chat</button>
+                    <button class="pill-btn nav-trigger" data-target="screen-copilot-board" id="copilot-view-board">📋 Discovery Board</button>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="copilot-chat-messages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="copilot-chat-input" class="chat-input" placeholder="Tell me who your customer is, a problem you're seeing, an interview you just had...">
+                        <button id="copilot-chat-send" class="chat-send-btn">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-copilot-board" class="screen">
+            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-copilot">← Back</button><div class="nav-title">Discovery Board</div></div>
+            <div class="content">
+                <div class="panel-text" style="margin-bottom:10px;">Everything the co-pilot (or you, by talking to it) has saved so far -- real rows in the database, not a transcript. Talk to it on the Chat tab to add to this.</div>
+                <div id="copilot-board-content"><div class="panel-text">Loading…</div></div>
             </div>
         </div>
 
@@ -1167,11 +1206,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginError.style.display = 'block';
             }
 
+            // Platform-owner-only screens -- a wholly separate account type
+            // (see supabase.sql), gated on isPlatformOwner rather than the
+            // tenant SCREEN_PERM table below, which assumes a currentUser
+            // profile the platform owner never has.
+            const PLATFORM_OWNER_SCREENS = { 'screen-master': renderMasterDashboard, 'screen-copilot': renderCopilot, 'screen-copilot-board': renderCopilotBoard };
             function navigateTo(screenId) {
-                if (screenId === 'screen-master') {
+                if (PLATFORM_OWNER_SCREENS[screenId]) {
                     if (!isPlatformOwner) { toast('Not authorised to open that screen.', 'bad'); return; }
-                    renderMasterDashboard();
-                    show('screen-master');
+                    PLATFORM_OWNER_SCREENS[screenId]();
+                    show(screenId);
                     return;
                 }
                 if (PUBLIC_SCREENS.indexOf(screenId) === -1) {
@@ -1192,6 +1236,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (screenId === 'screen-security') renderSecurity();
                 if (screenId === 'screen-scan-upload') renderScanUpload();
                 if (screenId === 'screen-billing') renderBilling();
+                if (screenId === 'screen-ai') renderAiChat();
                 show(screenId);
             }
 
@@ -1399,6 +1444,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isPlatformOwner = false;
                 show('screen-landing');
             });
+            document.getElementById('btn-open-copilot').addEventListener('click', () => navigateTo('screen-copilot'));
 
             forgotLink.addEventListener('click', e => {
                 e.preventDefault();
@@ -2164,36 +2210,170 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMasterDashboard();
             }
 
+            /* ----------------------------------------------------------------
+               Customer Discovery co-pilot (platform owner only). A real
+               Claude conversation through the ai-copilot Edge Function --
+               see that function's header comment for why it runs
+               server-side and why it is NOT a second, elevated access path
+               (it only ever reads/writes what the caller's own Row Level
+               Security already allows -- is_platform_owner() and the
+               discovery_* policies in supabase/copilot-upgrade.sql).
+               Conversation history persists in copilot_messages, so
+               reopening this screen shows the same conversation rather
+               than a blank chat.
+               ---------------------------------------------------------------- */
+            async function callCopilot(scope, message) {
+                const { data, error } = await sb.functions.invoke('ai-copilot', { body: { scope, message } });
+                if (error) throw error;
+                if (data && data.error) throw new Error(data.error);
+                return data; // { reply, actions }
+            }
+            function appendChatBubble(container, text, kind, actionNote) {
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble ' + kind;
+                bubble.textContent = text;
+                container.appendChild(bubble);
+                if (actionNote) {
+                    const note = document.createElement('div');
+                    note.className = 'copilot-action-note';
+                    note.textContent = actionNote;
+                    container.appendChild(note);
+                }
+                container.scrollTop = container.scrollHeight;
+            }
+
+            async function renderCopilot() {
+                const container = document.getElementById('copilot-chat-messages');
+                container.innerHTML = '<div class="panel-text">Loading conversation…</div>';
+                const { data, error } = await sb.from('copilot_messages').select('role, content').eq('scope', 'platform').order('created_at', { ascending: true });
+                container.innerHTML = '';
+                if (error) { container.innerHTML = '<div class="panel-text">Could not load the conversation: ' + esc(error.message) + '</div>'; return; }
+                if (!data || data.length === 0) {
+                    appendChatBubble(container, "I'm your Customer Discovery co-pilot. Tell me: who do you believe AssetIQ's customer is, and what problem are you solving for them?", 'bot');
+                    return;
+                }
+                data.forEach(m => appendChatBubble(container, m.content, m.role === 'user' ? 'user' : 'bot'));
+            }
+
+            async function sendCopilotMessage() {
+                const input = document.getElementById('copilot-chat-input');
+                const text = input.value.trim();
+                if (!text) return;
+                const container = document.getElementById('copilot-chat-messages');
+                appendChatBubble(container, text, 'user');
+                input.value = '';
+                const thinking = document.createElement('div');
+                thinking.className = 'chat-bubble bot';
+                thinking.textContent = 'Thinking…';
+                container.appendChild(thinking);
+                container.scrollTop = container.scrollHeight;
+                try {
+                    const result = await callCopilot('platform', text);
+                    thinking.remove();
+                    appendChatBubble(container, result.reply, 'bot', (result.actions && result.actions.length) ? '✓ ' + result.actions.join(' · ') : '');
+                } catch (err) {
+                    thinking.remove();
+                    appendChatBubble(container, 'Could not reach the co-pilot: ' + (err.message || err), 'bot');
+                }
+            }
+            document.getElementById('copilot-chat-send').addEventListener('click', sendCopilotMessage);
+            document.getElementById('copilot-chat-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendCopilotMessage(); });
+
+            function statusPill(status) { return '<span class="status-pill status-' + esc(status) + '">' + esc(status) + '</span>'; }
+
+            async function renderCopilotBoard() {
+                const el = document.getElementById('copilot-board-content');
+                el.innerHTML = '<div class="panel-text">Loading…</div>';
+                const [{ data: hyps, error: hypErr }, { data: interviews }, { data: canvas }, { data: decisions }] = await Promise.all([
+                    sb.from('discovery_hypotheses').select('*').order('updated_at', { ascending: false }),
+                    sb.from('discovery_interviews').select('*').order('created_at', { ascending: false }),
+                    sb.from('discovery_canvas').select('*'),
+                    sb.from('discovery_decisions').select('*').order('created_at', { ascending: false }),
+                ]);
+                if (hypErr) { el.innerHTML = '<div class="panel-text">Could not load the discovery board: ' + esc(hypErr.message) + '</div>'; return; }
+
+                const canvasByKey = {};
+                (canvas || []).forEach(c => { canvasByKey[c.block_key] = c.content; });
+                const CANVAS_LABELS = {
+                    customer_segments: 'Customer Segments', value_proposition: 'Value Proposition', channels: 'Channels',
+                    customer_relationships: 'Customer Relationships', revenue_streams: 'Revenue Streams', key_resources: 'Key Resources',
+                    key_activities: 'Key Activities', key_partners: 'Key Partners', cost_structure: 'Cost Structure',
+                };
+
+                const hypHtml = (hyps && hyps.length)
+                    ? hyps.map(h => `<div class="panel-box">
+                        <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;font-size:12px;">${esc(h.customer_segment || 'Unnamed segment')}</div>${statusPill(h.status)}</div>
+                        <div class="panel-text"><strong>Problem:</strong> ${esc(h.problem_statement || '—')}</div>
+                        <div class="panel-text"><strong>Solution:</strong> ${esc(h.solution_statement || '—')}</div>
+                    </div>`).join('')
+                    : '<div class="panel-text">No hypotheses saved yet -- tell the co-pilot who you think the customer is.</div>';
+
+                const interviewHtml = (interviews && interviews.length)
+                    ? interviews.map(i => `<div class="panel-box">
+                        <div style="font-weight:700;font-size:12px;">${esc(i.interviewee || 'Unnamed')}</div>
+                        <div class="panel-text">${esc(i.notes || '')}</div>
+                        ${i.learning ? '<div class="panel-text"><strong>Learned:</strong> ' + esc(i.learning) + '</div>' : ''}
+                        <div class="panel-text" style="font-size:10px;">${new Date(i.created_at).toLocaleDateString()}</div>
+                    </div>`).join('')
+                    : '<div class="panel-text">No interviews logged yet -- get out of the building, then tell the co-pilot what you learned.</div>';
+
+                const canvasHtml = '<div class="canvas-grid">' + Object.keys(CANVAS_LABELS).map(k => `
+                    <div class="canvas-block"><div class="canvas-block-title">${esc(CANVAS_LABELS[k])}</div>${esc(canvasByKey[k] || '—')}</div>
+                `).join('') + '</div>';
+
+                const decisionHtml = (decisions && decisions.length)
+                    ? decisions.map(d => `<div class="panel-box">${statusPill(d.decision)} <span class="panel-text">${esc(d.rationale || '')}</span><div class="panel-text" style="font-size:10px;">${new Date(d.created_at).toLocaleDateString()}</div></div>`).join('')
+                    : '<div class="panel-text">No pivot/persevere decisions recorded yet.</div>';
+
+                el.innerHTML =
+                    '<div class="panel-title" style="margin-bottom:8px;">Hypotheses</div>' + hypHtml +
+                    '<div class="panel-title" style="margin:14px 0 8px;">Business Model Canvas</div>' + canvasHtml +
+                    '<div class="panel-title" style="margin:14px 0 8px;">Interviews</div>' + interviewHtml +
+                    '<div class="panel-title" style="margin:14px 0 8px;">Pivot / Persevere decisions</div>' + decisionHtml;
+            }
+
             /* ---------------- AI assistant (scripted; the valuation figure is real) ---------------- */
+            // Real Claude, through the same ai-copilot Edge Function as the
+            // platform owner's co-pilot, scope: 'tenant' -- grounded in THIS
+            // organisation's own assets/tickets, with no Steve Blank
+            // framework overlay and no tools (see that function's header
+            // comment). Organisation-wide valuation is withheld from the
+            // data the function even builds for a non-admin role -- the
+            // same real gate the old scripted version applied in JS, just
+            // moved to where the data is assembled, not trusted to the
+            // model to self-censor. Replaces the keyword-matching stub this
+            // screen shipped with before.
+            async function renderAiChat() {
+                chatMessages.innerHTML = '<div class="panel-text">Loading conversation…</div>';
+                const { data, error } = await sb.from('copilot_messages').select('role, content').eq('scope', 'tenant').order('created_at', { ascending: true });
+                chatMessages.innerHTML = '';
+                if (error) { chatMessages.innerHTML = '<div class="panel-text">Could not load the conversation: ' + esc(error.message) + '</div>'; return; }
+                if (!data || data.length === 0) {
+                    appendChatBubble(chatMessages, 'Hello! I am your asset intelligence copilot. Ask me about asset values, maintenance, or warranty expirations.', 'bot');
+                    return;
+                }
+                data.forEach(m => appendChatBubble(chatMessages, m.content, m.role === 'user' ? 'user' : 'bot'));
+            }
+
             function sendChatMessage() {
                 const text = chatInput.value.trim();
                 if (!text) return;
-                const userBubble = document.createElement('div');
-                userBubble.className = 'chat-bubble user'; userBubble.textContent = text;
-                chatMessages.appendChild(userBubble); chatInput.value = '';
+                appendChatBubble(chatMessages, text, 'user');
+                chatInput.value = '';
+                const thinking = document.createElement('div');
+                thinking.className = 'chat-bubble bot';
+                thinking.textContent = 'Thinking…';
+                chatMessages.appendChild(thinking);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                setTimeout(async () => {
-                    const botBubble = document.createElement('div');
-                    botBubble.className = 'chat-bubble bot';
-                    const lower = text.toLowerCase();
-                    if (lower.includes('value') || lower.includes('cost') || lower.includes('worth')) {
-                        if (decide(currentUser.role, 'view_org')) {
-                            const { data } = await sb.from('assets').select('value');
-                            const total = (data || []).reduce((s, a) => s + (Number(a.value) || 0), 0);
-                            botBubble.textContent = 'The organisation currently tracks R ' + total.toLocaleString() + ' across ' + (data || []).length + ' registered assets.';
-                        } else {
-                            await audit('AI valuation answer refused', "role '" + ROLE_INFO[currentUser.role].label + "' lacks 'view_org'", true);
-                            botBubble.textContent = 'Organisation-wide valuation is limited to Org Managers. I can help with your own assets.';
-                        }
-                    } else if (lower.includes('volvo') || lower.includes('service')) {
-                        botBubble.textContent = 'The Volvo XC30 is scheduled for service at 75,000 km or June 2027.';
-                    } else {
-                        botBubble.textContent = 'I can help with questions about your assets, warranties and replacement deadlines.';
-                    }
-                    chatMessages.appendChild(botBubble);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 400);
+                callCopilot('tenant', text).then(result => {
+                    thinking.remove();
+                    appendChatBubble(chatMessages, result.reply, 'bot');
+                    audit('AI assistant question asked', '', false);
+                }).catch(err => {
+                    thinking.remove();
+                    appendChatBubble(chatMessages, 'Could not reach the assistant: ' + (err.message || err), 'bot');
+                });
             }
             chatSendBtn.addEventListener('click', sendChatMessage);
             chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMessage(); });
