@@ -34,13 +34,23 @@ function makeFakeSupabase() {
   let tickets = [];
   let auditLog = [];
   let payments = [];
+  let copilotMessages = [];
+  let discoveryHypotheses = [];
+  let discoveryInterviews = [];
+  let discoveryCanvas = [];
+  let discoveryDecisions = [];
   let authCallback = null;
   let session = null;
   let pendingSignups = {}; // email -> { id, password } for the fake signUp()/signIn() pair
   let nextId = 1000;
   const errors = [];
 
-  const TABLES = { profiles: () => profiles, assets: () => assets, tickets: () => tickets, audit_log: () => auditLog, organizations: () => orgs, invites: () => invites, platform_admins: () => platformAdmins, payments: () => payments };
+  const TABLES = {
+    profiles: () => profiles, assets: () => assets, tickets: () => tickets, audit_log: () => auditLog,
+    organizations: () => orgs, invites: () => invites, platform_admins: () => platformAdmins, payments: () => payments,
+    copilot_messages: () => copilotMessages, discovery_hypotheses: () => discoveryHypotheses,
+    discovery_interviews: () => discoveryInterviews, discovery_canvas: () => discoveryCanvas, discovery_decisions: () => discoveryDecisions,
+  };
 
   function q(table) {
     const state = { table, filters: [], order: null, limitN: null, single: false, maybeSingle: false, countMode: null };
@@ -162,6 +172,39 @@ function makeFakeSupabase() {
       invite.used_by = session.id; invite.used_at = new Date().toISOString();
       return { data: { organization: orgs.find(o => o.id === invite.organization_id), role: invite.role }, error: null };
     }
+    // ai-copilot: a deterministic stand-in, not a real model -- it proves
+    // the UI calls the function, persists the exchange to copilot_messages
+    // the same way the real Edge Function does, and (for the platform
+    // scope) that a tool-worthy message results in a real discovery_*
+    // row, which is what the Discovery Board check below reads back.
+    if (name === 'ai-copilot') {
+      const { scope, message } = body;
+      if (!message) return { data: { error: 'No message supplied.' }, error: null };
+      const now = new Date().toISOString();
+      if (scope === 'platform') {
+        if (!platformAdmins.find(p => p.id === session.id)) return { data: { error: 'Not authorised: platform owner only.' }, error: null };
+        const actions = [];
+        let reply = 'Tell me more about who you believe the customer is.';
+        if (/hypothesis|segment/i.test(message)) {
+          discoveryHypotheses.push({ id: 'hyp-' + (nextId++), customer_segment: 'Facilities managers (test)', problem_statement: message, solution_statement: '', status: 'untested', created_by: session.id, created_at: now, updated_at: now });
+          actions.push('Saved a new hypothesis');
+          reply = "Got it -- saved that as a hypothesis. Who have you actually talked to about this?";
+        }
+        copilotMessages.push({ id: 'msg-' + (nextId++), scope: 'platform', organization_id: null, role: 'user', content: message, created_by: session.id, created_at: now });
+        copilotMessages.push({ id: 'msg-' + (nextId++), scope: 'platform', organization_id: null, role: 'assistant', content: reply, created_by: session.id, created_at: now });
+        return { data: { reply, actions }, error: null };
+      }
+      if (scope === 'tenant') {
+        const me = profiles.find(p => p.id === session.id);
+        if (!me) return { data: { error: 'No organisation is set up for this account.' }, error: null };
+        const org = orgs.find(o => o.id === me.organization_id);
+        const reply = 'Your organisation "' + (org ? org.name : '') + '" is on the ' + (org ? org.plan : '') + ' plan. (test-double reply)';
+        copilotMessages.push({ id: 'msg-' + (nextId++), scope: 'tenant', organization_id: me.organization_id, role: 'user', content: message, created_by: session.id, created_at: now });
+        copilotMessages.push({ id: 'msg-' + (nextId++), scope: 'tenant', organization_id: me.organization_id, role: 'assistant', content: reply, created_by: session.id, created_at: now });
+        return { data: { reply, actions: [] }, error: null };
+      }
+      return { data: { error: 'Unknown scope.' }, error: null };
+    }
     return { data: { error: 'Unknown function in test double: ' + name }, error: null };
   }
 
@@ -262,6 +305,27 @@ const active = d => { const a = d.querySelector('.screen.active'); return a ? a.
   await new Promise(r => setTimeout(r, 50));
   check('Platform owner reaches the master dashboard, not a tenant dashboard', active(d) === 'screen-master');
   check('Master dashboard lists the seeded organisation', d.getElementById('master-org-list').textContent.includes('Acme Co'));
+
+  // Customer Discovery co-pilot: a real (if test-doubled) round trip --
+  // opening it, sending a message, getting a reply persisted to
+  // copilot_messages, and a tool-worthy message actually landing a row
+  // in discovery_hypotheses that the Discovery Board then reads back.
+  d.getElementById('btn-open-copilot').click();
+  await new Promise(r => setTimeout(r, 30));
+  check('Platform owner can open the Discovery Co-pilot', active(d) === 'screen-copilot');
+  check('The co-pilot opens with a welcome message when no history exists', d.getElementById('copilot-chat-messages').textContent.includes('Customer Discovery co-pilot'));
+
+  d.getElementById('copilot-chat-input').value = 'I think our customer segment is facilities managers -- is that a real hypothesis?';
+  d.getElementById('copilot-chat-send').click();
+  await new Promise(r => setTimeout(r, 50));
+  check('Sending a message to the co-pilot shows a reply', d.querySelectorAll('#copilot-chat-messages .chat-bubble').length >= 3);
+  check('A tool-worthy message shows an action note under the reply', /Saved a new hypothesis/.test(d.getElementById('copilot-chat-messages').textContent));
+
+  d.getElementById('copilot-view-board').click();
+  await new Promise(r => setTimeout(r, 30));
+  check('The Discovery Board reflects the hypothesis the co-pilot just saved', /Facilities managers/.test(d.getElementById('copilot-board-content').textContent));
+
+  d.querySelector('[data-target="screen-master"]').click();
   d.getElementById('btn-master-logout').click();
   await new Promise(r => setTimeout(r, 20));
 
@@ -291,6 +355,18 @@ const active = d => { const a = d.querySelector('.screen.active'); return a ? a.
 
   d.querySelector('.nav-tab[data-tab="screen-scan-upload"]').click();
   check('Org Manager can open Scan Nameplate', active(d) === 'screen-scan-upload');
+
+  // AI Assist: now real Claude (through the same Edge Function, scope:
+  // 'tenant') instead of the old scripted keyword-matching -- proving it
+  // calls out, shows a reply, and persists the exchange.
+  const aiTab = [...d.querySelectorAll('.nav-tab')].find(t => t.textContent.includes('AI Assist'));
+  if (aiTab) aiTab.click();
+  await new Promise(r => setTimeout(r, 30));
+  check('Org Manager can open AI Assist', active(d) === 'screen-ai');
+  d.getElementById('chat-input').value = 'What plan are we on?';
+  d.getElementById('chat-send-btn').click();
+  await new Promise(r => setTimeout(r, 50));
+  check('Asking the AI assistant a question shows a real reply, not a scripted one', /Acme Co.*plan/.test(d.getElementById('chat-messages').textContent));
 
   d.getElementById('btn-profile').click();
   d.getElementById('btn-open-security').click();
