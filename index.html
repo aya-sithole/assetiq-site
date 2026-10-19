@@ -492,7 +492,7 @@
                 <p class="landing-subtitle">Track, manage, and optimise your organisation's assets seamlessly.</p>
                 <div class="btn-group-bottom">
                     <button class="btn btn-white nav-trigger" data-target="screen-login">Log in</button>
-                    <button class="btn btn-outline-white nav-trigger" data-target="screen-signup">Request access</button>
+                    <button class="btn btn-outline-white nav-trigger" data-target="screen-signup">Sign up</button>
                 </div>
             </div>
         </div>
@@ -513,32 +513,37 @@
                     <input type="password" id="password-input" class="form-control-minimal" placeholder="Password" autocomplete="off">
                 </div>
                 <div class="forgot-link"><a href="#" id="link-forgot">Forgot password?</a></div>
-                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">Demo accounts, tap to fill (password for all: <code>Demo2026pass!</code>)</div>
-                <div class="chip-row">
-                    <button type="button" class="chip" data-u="demo@assetiq.app" data-p="Demo2026pass!">Staff</button>
-                    <button type="button" class="chip" data-u="admin@assetiq.app" data-p="Demo2026pass!">Org Manager</button>
-                    <button type="button" class="chip" data-u="viewer@assetiq.app" data-p="Demo2026pass!">Viewer</button>
-                </div>
                 <button id="btn-login" class="btn btn-blue mt-4">Log in</button>
                 <div class="auth-note">Demo installation with fictional data.</div>
                 <div class="divider"><span>or</span></div>
-                <button class="btn btn-outline-grey nav-trigger" data-target="screen-signup">Request access</button>
-                <div class="auth-hint" style="margin-top:14px;">Accounts are created by an administrator -- see SETUP.md. There is deliberately no self-service way to create one here.</div>
+                <button class="btn btn-outline-grey nav-trigger" data-target="screen-signup">Sign up</button>
+                <div class="auth-hint" style="margin-top:14px;">New here? Create an organisation, or join one with an invite code from its Org Manager -- see "Sign up".</div>
             </div>
         </div>
 
         <div id="screen-signup" class="screen auth-screen">
             <div class="auth-header-wave">
                 <button class="icon-btn-back nav-trigger" data-target="screen-landing">❮</button>
-                <h1 class="auth-title">Request<br>Access</h1>
+                <h1 class="auth-title">Create your<br>account</h1>
             </div>
             <div class="auth-form-container">
+                <div id="signup-error" class="error-msg"></div>
+                <div class="issues-tabs" style="margin-bottom:14px;">
+                    <button type="button" class="pill-btn active" id="signup-mode-create">New organisation</button>
+                    <button type="button" class="pill-btn" id="signup-mode-join">Join with invite code</button>
+                </div>
                 <div class="form-group icon-input"><span class="input-icon">👤</span>
-                    <input type="text" id="signup-name" class="form-control-minimal" placeholder="Full Name"></div>
+                    <input type="text" id="signup-name" class="form-control-minimal" placeholder="Full name"></div>
                 <div class="form-group icon-input"><span class="input-icon">✉️</span>
-                    <input type="email" id="signup-email" class="form-control-minimal" placeholder="Work Email"></div>
-                <div class="auth-hint">Your organisation administrator creates your account and issues your first sign-in details. Requesting access does not create an account.</div>
-                <button id="btn-signup" class="btn btn-blue mt-4">Request access</button>
+                    <input type="email" id="signup-email" class="form-control-minimal" placeholder="Email"></div>
+                <div class="form-group icon-input"><span class="input-icon">🔒</span>
+                    <input type="password" id="signup-password" class="form-control-minimal" placeholder="Password (min 8 characters)"></div>
+                <div class="form-group icon-input" id="signup-orgname-group"><span class="input-icon">🏢</span>
+                    <input type="text" id="signup-orgname" class="form-control-minimal" placeholder="Organisation name"></div>
+                <div class="form-group icon-input" id="signup-invite-group" style="display:none;"><span class="input-icon">🔑</span>
+                    <input type="text" id="signup-invitecode" class="form-control-minimal" placeholder="Invite code"></div>
+                <div class="auth-hint" id="signup-mode-hint">You become this organisation's Org Manager on a 14-day trial. No card required for this demo -- see README, "Subscription model".</div>
+                <button id="btn-signup" class="btn btn-blue mt-4">Create account</button>
                 <div class="divider"><span>or</span></div>
                 <button class="btn btn-outline-grey nav-trigger" data-target="screen-login">Log in</button>
             </div>
@@ -547,10 +552,14 @@
         <div id="screen-dashboard" class="screen">
             <div class="dash-header">
                 <div>
-                    <div class="dash-org">AssetIQ Demo <span id="dash-role-badge" class="role-pill user">Staff</span></div>
+                    <div class="dash-org"><span id="dash-org-name">AssetIQ</span> <span id="dash-org-plan" class="role-pill user" style="display:none;"></span> <span id="dash-role-badge" class="role-pill user">Staff</span></div>
                     <div class="dash-greeting">Hi, <span id="dash-username-display">User</span>! 👋</div>
                 </div>
                 <div id="btn-profile" class="profile-icon">👤</div>
+            </div>
+            <div id="org-suspended-banner" class="notice-banner" style="display:none; margin: 10px 20px 0;">
+                <div class="notice-head"><span class="notice-icon">⛔</span><span class="notice-title">Subscription paused</span></div>
+                <div class="notice-text" id="org-suspended-text">Your organisation's subscription is not active. Asset and ticket data is temporarily unavailable until it is resumed -- this is enforced by the database itself (org_active() in supabase.sql), not hidden by this page.</div>
             </div>
             <div class="content has-bottom-nav" style="padding-top: 8px;">
                 <div class="notice-banner">
@@ -795,6 +804,23 @@
             <div class="content">
                 <div class="caveat">These checks make real requests to Supabase using your current sign-in. A PASS means PostgreSQL's Row Level Security -- not this page's JavaScript -- allowed or refused the request.</div>
                 <div class="panel-box">
+                    <div class="panel-title">Your organisation</div>
+                    <div class="panel-text" id="sec-org-info">—</div>
+                </div>
+                <div class="panel-box" id="invite-panel" style="display:none;">
+                    <div class="panel-title">Invite a teammate</div>
+                    <div class="panel-text" style="margin-bottom:8px;">Generates a single-use, 7-day invite code for your organisation. Share it with the person you want to add; they enter it on the "Join with invite code" sign-up screen. Org Manager only -- enforced by Row Level Security on the invites table, not by hiding this panel.</div>
+                    <div class="form-group">
+                        <label class="form-label" for="invite-role-select">Role for this invite</label>
+                        <select id="invite-role-select" class="form-control">
+                            <option value="user">Staff</option>
+                            <option value="viewer">Viewer</option>
+                        </select>
+                    </div>
+                    <button id="btn-create-invite" class="btn btn-secondary">Generate invite code</button>
+                    <div id="invite-result" class="panel-text" style="margin-top:8px;"></div>
+                </div>
+                <div class="panel-box">
                     <div class="panel-title">Current session</div>
                     <div class="panel-text" id="sec-session-info">—</div>
                     <div class="form-group" style="margin: 10px 0 0;">
@@ -830,6 +856,15 @@
             </div>
         </div>
 
+        <div id="screen-master" class="screen">
+            <div class="top-nav"><div class="nav-title" style="margin-right:0;">AssetIQ Platform Admin 🛠️</div></div>
+            <div class="content" style="padding-top:16px;">
+                <div class="panel-text" style="margin-bottom:12px;">You are signed in as the AssetIQ platform owner, not as a member of any customer organisation. This view shows each tenant's subscription plan, status and basic usage counts only -- never their assets, tickets or audit log (see README, "Privacy boundary: what the platform owner can and cannot see").</div>
+                <div id="master-org-list"><div class="panel-text">Loading organisations…</div></div>
+                <div class="logout-container" style="margin-top:20px;"><button id="btn-master-logout" class="btn btn-danger">Log Out</button></div>
+            </div>
+        </div>
+
         <div id="toast" class="toast" role="status"></div>
     </div>
 
@@ -844,8 +879,8 @@
            SUPABASE CONFIG -- paste your project's values here.
            Supabase Dashboard > Project Settings > API > Project URL / anon public key.
            ================================================================== */
-        const SUPABASE_URL = "https://humscpiktbhcvdckhzjf.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1bXNjcGlrdGJoY3ZkY2toempmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDA1MTgsImV4cCI6MjEwNjYxNjUxOH0.pBBUfYALMedamK1FoyUOYZymn1DGbrgr77DXTLdqxgk";
+        const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL";
+        const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_PUBLIC_KEY";
 
         const SEED_ASSETS = [
             { id: "LPT-4922", name: "MacBook Pro 16\"", icon: "💻", make: "Apple Inc.", model: "M3 Max (36GB RAM)", sn: "C02G80XYZ001", replace: "Oct 15, 2027", location: "Cape Town HQ - Desk 4B", assigned: "Sam Technician", condition: "Good", notes: "", photo: "", active: true, value: 65000 },
@@ -955,7 +990,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             function decide(role, perm) { return !!role && !!PERMS[perm] && PERMS[perm].indexOf(role) !== -1; }
 
-            let currentUser = null;      // { id, email, role, name, title, dept }
+            let currentUser = null;      // { id, email, role, name, title, dept, organization_id }
+            let currentOrg = null;       // { id, name, slug, plan, status, trial_ends_at }
+            let isPlatformOwner = false; // a platform owner has no currentUser/profile at all
             let session = null;          // { last }
             let sessionLimit = 10 * 60 * 1000;
             let pendingPhoto = '';
@@ -981,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', () => {
                ---------------------------------------------------------------- */
             function audit(action, detail, denied) {
                 if (!currentUser) return Promise.resolve();
-                return sb.from('audit_log').insert([{ user_email: currentUser.email, action, detail: detail || '', denied: !!denied }])
+                return sb.from('audit_log').insert([{ organization_id: currentUser.organization_id, user_email: currentUser.email, action, detail: detail || '', denied: !!denied }])
                     .then(({ error }) => { if (error) console.warn('Could not write audit entry:', error.message); });
             }
 
@@ -1028,6 +1065,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             function navigateTo(screenId) {
+                if (screenId === 'screen-master') {
+                    if (!isPlatformOwner) { toast('Not authorised to open that screen.', 'bad'); return; }
+                    renderMasterDashboard();
+                    show('screen-master');
+                    return;
+                }
                 if (PUBLIC_SCREENS.indexOf(screenId) === -1) {
                     if (!currentUser) { show('screen-login'); showLoginMessage('Please sign in to continue.', 'info'); return; }
                     const perm = SCREEN_PERM[screenId];
@@ -1075,36 +1118,87 @@ document.addEventListener('DOMContentLoaded', () => {
                ---------------------------------------------------------------- */
 
             async function seedAssetsAndTickets() {
-                const { error: assetErr } = await sb.from('assets').upsert(SEED_ASSETS);
+                const orgId = currentUser.organization_id;
+                const scopedAssets = SEED_ASSETS.map(a => ({ ...a, organization_id: orgId }));
+                const { error: assetErr } = await sb.from('assets').upsert(scopedAssets, { onConflict: 'organization_id,id' });
                 if (assetErr) throw assetErr;
                 const { data: existingTickets, error: ticketReadErr } = await sb.from('tickets').select('id').limit(1);
                 if (ticketReadErr) throw ticketReadErr;
                 if (!existingTickets || existingTickets.length === 0) {
                     const { error: ticketErr } = await sb.from('tickets').insert([{
+                        organization_id: orgId,
                         reference: 'TCK-88201', asset_id: 'VEH-0030', asset_label: 'Volvo XC30', type: 'Maintenance / Service',
                         urgency: 'High', description: '75,000 km scheduled factory service required.', status: 'open',
-                        created_by: 'admin@assetiq.app'
+                        created_by: currentUser.email
                     }]);
                     if (ticketErr) throw ticketErr;
                 }
             }
 
+            /* ----------------------------------------------------------------
+               Which organisation the signed-in user belongs to, and its
+               subscription plan/status. Read AFTER currentUser is set, via
+               the "member reads own org" policy in supabase.sql (not a
+               platform-owner-only call) -- the member-facing UI is allowed
+               to see its own organisation's row, just not anyone else's.
+               ---------------------------------------------------------------- */
+            async function loadCurrentOrg() {
+                const { data: org, error } = await sb.from('organizations').select('*').eq('id', currentUser.organization_id).single();
+                currentOrg = error ? null : org;
+                const orgNameEl = document.getElementById('dash-org-name');
+                const orgPlanEl = document.getElementById('dash-org-plan');
+                const suspendedBanner = document.getElementById('org-suspended-banner');
+                const secOrgInfo = document.getElementById('sec-org-info');
+                const invitePanel = document.getElementById('invite-panel');
+                if (orgNameEl && currentOrg) orgNameEl.textContent = currentOrg.name;
+                if (orgPlanEl && currentOrg) { orgPlanEl.textContent = currentOrg.plan; orgPlanEl.style.display = ''; }
+                const suspended = currentOrg && (currentOrg.status === 'suspended' || currentOrg.status === 'canceled');
+                if (suspendedBanner) suspendedBanner.style.display = suspended ? 'flex' : 'none';
+                if (secOrgInfo && currentOrg) {
+                    secOrgInfo.textContent = currentOrg.name + ' • plan: ' + currentOrg.plan + ' • status: ' + currentOrg.status +
+                        (currentOrg.status === 'trialing' ? ' • trial ends ' + new Date(currentOrg.trial_ends_at).toLocaleDateString() : '');
+                }
+                if (invitePanel) invitePanel.style.display = decide(currentUser.role, 'view_audit') ? 'block' : 'none';
+            }
+
             /* ---------------- Auth state ---------------- */
             sb.auth.onAuthStateChange(async (_event, authSession) => {
-                if (!authSession) { currentUser = null; return; }
+                if (!authSession) { currentUser = null; isPlatformOwner = false; return; }
                 const user = authSession.user;
                 try {
-                    const { data: profile, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
-                    if (error || !profile) {
-                        showLoginMessage('Signed in, but no profile record exists for this account yet. An administrator needs to assign it a role (see SETUP.md step 6b) before it can be used.', 'info');
-                        await sb.auth.signOut();
+                    const { data: profile, error } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+                    if (profile) {
+                        isPlatformOwner = false;
+                        currentUser = { id: user.id, email: user.email, role: profile.role, name: profile.name, title: profile.title, dept: profile.dept, organization_id: profile.organization_id };
+                        session = { last: Date.now() };
+                        await loadCurrentOrg();
+                        applyRoleUI();
+                        renderBottomNavbars();
+                        navigateTo('screen-dashboard');
                         return;
                     }
-                    currentUser = { id: user.id, email: user.email, role: profile.role, name: profile.name, title: profile.title, dept: profile.dept };
-                    session = { last: Date.now() };
-                    applyRoleUI();
-                    renderBottomNavbars();
-                    navigateTo('screen-dashboard');
+                    // No profile row -- either a platform-owner account (which
+                    // deliberately has no profiles row at all, see
+                    // supabase.sql), or a signUp() that has not yet been
+                    // completed by create-organization / join-organization.
+                    const { data: ownerFlag } = await sb.rpc('is_platform_owner');
+                    if (ownerFlag) {
+                        currentUser = null;
+                        isPlatformOwner = true;
+                        session = { last: Date.now() };
+                        navigateTo('screen-master');
+                        return;
+                    }
+                    // During sign-up, signUp() itself fires this very event
+                    // BEFORE create-organization / join-organization has had a
+                    // chance to create the profile row -- that is expected,
+                    // not an error, so do not sign the user back out here. The
+                    // sign-up handler calls sb.auth.refreshSession() once the
+                    // Edge Function has finished, which fires this listener
+                    // again and finds the profile that now exists.
+                    if (signupInProgress) return;
+                    showLoginMessage('Signed in, but no organisation is set up for this account yet. If you just signed up, this can take a moment -- try logging in again. Otherwise ask your Org Manager for a new invite.', 'info');
+                    await sb.auth.signOut();
                 } catch (err) {
                     showLoginMessage('Could not load your profile: ' + err.message, 'info');
                 }
@@ -1141,6 +1235,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 show('screen-landing');
             });
 
+            const masterLogoutBtn = document.getElementById('btn-master-logout');
+            if (masterLogoutBtn) masterLogoutBtn.addEventListener('click', async () => {
+                await sb.auth.signOut();
+                isPlatformOwner = false;
+                show('screen-landing');
+            });
+
             forgotLink.addEventListener('click', e => {
                 e.preventDefault();
                 showLoginMessage('Password reset is not enabled in this demo. Ask your organisation administrator.', 'info');
@@ -1155,11 +1256,86 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-open-audit').addEventListener('click', () => navigateTo('screen-audit'));
             document.getElementById('btn-open-security').addEventListener('click', () => navigateTo('screen-security'));
 
-            signupBtn.addEventListener('click', () => {
-                if (!signupName.value.trim() || !signupEmail.value.trim()) { toast('Enter your name and work email to request access.', 'bad'); return; }
-                signupName.value = ''; signupEmail.value = '';
-                show('screen-login');
-                showLoginMessage('Request recorded locally. Accounts are created by your organisation administrator, so no account exists yet.', 'info');
+            /* ----------------------------------------------------------------
+               Sign-up: a real sb.auth.signUp(), then exactly ONE of two
+               trusted Edge Functions (create-organization / join-organization)
+               finishes provisioning the profile. Neither function lets the
+               caller choose their own role or organization_id directly -- see
+               the long comment at the top of each function for why that
+               still closes the same privilege-escalation gap the
+               single-tenant version's security fix closed, even though
+               sign-up is now self-service. See README, "Sign-up, revisited
+               for multi-tenancy".
+               ---------------------------------------------------------------- */
+            const signupError = document.getElementById('signup-error');
+            const signupPassword = document.getElementById('signup-password');
+            const signupOrgName = document.getElementById('signup-orgname');
+            const signupInviteCode = document.getElementById('signup-invitecode');
+            const signupOrgGroup = document.getElementById('signup-orgname-group');
+            const signupInviteGroup = document.getElementById('signup-invite-group');
+            const signupModeHint = document.getElementById('signup-mode-hint');
+            const signupModeCreateBtn = document.getElementById('signup-mode-create');
+            const signupModeJoinBtn = document.getElementById('signup-mode-join');
+            let signupMode = 'create';
+            let signupInProgress = false;
+
+            function setSignupMode(mode) {
+                signupMode = mode;
+                signupModeCreateBtn.classList.toggle('active', mode === 'create');
+                signupModeJoinBtn.classList.toggle('active', mode === 'join');
+                signupOrgGroup.style.display = mode === 'create' ? '' : 'none';
+                signupInviteGroup.style.display = mode === 'join' ? '' : 'none';
+                signupModeHint.textContent = mode === 'create'
+                    ? "You become this organisation's Org Manager on a 14-day trial. No card required for this demo -- see README, \"Subscription model\"."
+                    : 'Ask your Org Manager for an invite code (Profile > Access Checks > Invite a teammate). It sets your role and organisation for you.';
+            }
+            signupModeCreateBtn.addEventListener('click', () => setSignupMode('create'));
+            signupModeJoinBtn.addEventListener('click', () => setSignupMode('join'));
+
+            function showSignupError(msg) { signupError.textContent = msg; signupError.style.display = 'block'; }
+
+            signupBtn.addEventListener('click', async () => {
+                signupError.style.display = 'none';
+                const name = signupName.value.trim();
+                const email = signupEmail.value.trim().toLowerCase();
+                const password = signupPassword.value;
+                if (!name || !email || !password) { showSignupError('Name, email and password are all required.'); return; }
+                if (password.length < 8) { showSignupError('Password must be at least 8 characters.'); return; }
+                if (signupMode === 'create' && !signupOrgName.value.trim()) { showSignupError('Enter a name for your organisation.'); return; }
+                if (signupMode === 'join' && !signupInviteCode.value.trim()) { showSignupError('Enter the invite code you were given.'); return; }
+
+                signupBtn.disabled = true; signupBtn.textContent = 'Creating account…';
+                signupInProgress = true;
+                try {
+                    const { data: signUpData, error: signUpErr } = await sb.auth.signUp({ email, password });
+                    if (signUpErr) throw signUpErr;
+                    // signUp() can succeed without an active session if Supabase
+                    // email confirmation is turned on; this demo assumes it is
+                    // off (see SETUP.md), so a session should exist immediately.
+                    if (!signUpData.session) throw new Error('Account created, but email confirmation is required before you can continue. Check SETUP.md.');
+
+                    const fnName = signupMode === 'create' ? 'create-organization' : 'join-organization';
+                    const body = signupMode === 'create'
+                        ? { orgName: signupOrgName.value.trim(), name }
+                        : { inviteCode: signupInviteCode.value.trim(), name };
+                    const { data: fnData, error: fnErr } = await sb.functions.invoke(fnName, { body });
+                    if (fnErr) throw fnErr;
+                    if (fnData && fnData.error) throw new Error(fnData.error);
+
+                    // onAuthStateChange has already fired once with "no
+                    // profile yet" (the Edge Function hadn't run); re-fetch the
+                    // session now that the profile exists so it fires again
+                    // and takes the user to their dashboard.
+                    const { data: freshSession } = await sb.auth.getSession();
+                    if (freshSession.session) {
+                        await sb.auth.refreshSession();
+                    }
+                } catch (err) {
+                    showSignupError(err.message || String(err));
+                } finally {
+                    signupBtn.disabled = false; signupBtn.textContent = 'Create account';
+                    signupInProgress = false;
+                }
             });
 
             /* ---------------- Session idle expiry (client-side; see README) ---------------- */
@@ -1333,6 +1509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const assetId = issueAssetSelect.value;
                 const assetLabel = issueAssetSelect.options[issueAssetSelect.selectedIndex] ? issueAssetSelect.options[issueAssetSelect.selectedIndex].text : assetId;
                 runGuarded('Issue ticket submitted (' + ref + ')', () => sb.from('tickets').insert([{
+                    organization_id: currentUser.organization_id,
                     reference: ref, asset_id: assetId, asset_label: assetLabel, type: issueTypeSelect.value, urgency: issueUrgencySelect.value,
                     description: issueDesc.value.trim(), status: 'open', created_by: currentUser.email
                 }])).then(() => {
@@ -1383,6 +1560,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!title) return;
                 const ref = 'TCK-' + Math.floor(10000 + Math.random() * 90000);
                 runGuarded('Ticket created (' + ref + ')', () => sb.from('tickets').insert([{
+                    organization_id: currentUser.organization_id,
                     reference: ref, asset_id: null, asset_label: title, type: 'Manual', urgency: 'Medium', description: title,
                     status: 'open', created_by: currentUser.email
                 }])).then(() => renderTickets()).catch(() => {});
@@ -1461,6 +1639,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!name) { toast('Give the asset a name first.', 'bad'); return; }
                 const newAsset = {
                     id: 'AST-' + Math.floor(100000 + Math.random() * 900000),
+                    organization_id: currentUser.organization_id,
                     name, icon: document.getElementById('scan-icon').value.trim() || '📦',
                     make: document.getElementById('scan-make').value.trim(),
                     model: document.getElementById('scan-model').value.trim(),
@@ -1556,9 +1735,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const { data } = await sb.from('profiles').select('id');
                     const count = (data || []).length;
-                    t('Profile visibility is correctly scoped (Org Manager sees all, others see only their own)',
-                        currentUser.role === 'admin' ? count >= 3 : count === 1);
-                } catch (e) { t('Profile visibility is correctly scoped (Org Manager sees all, others see only their own)', false); }
+                    t('Profile visibility is correctly scoped (Org Manager sees own org only, others see only themselves)',
+                        currentUser.role === 'admin' ? count >= 1 : count === 1);
+                } catch (e) { t('Profile visibility is correctly scoped (Org Manager sees own org only, others see only themselves)', false); }
+
+                try {
+                    const { data } = await sb.from('organizations').select('id').neq('id', currentUser.organization_id);
+                    t('Tenant isolation: cannot see any other organisation\'s row', (data || []).length === 0);
+                } catch (e) { t('Tenant isolation: cannot see any other organisation\'s row', true); }
 
                 try {
                     const { data: snap } = await sb.from('assets').select('*').limit(1);
@@ -1615,6 +1799,70 @@ document.addEventListener('DOMContentLoaded', () => {
                     toast('Assets and tickets reset. The audit log was kept, by design.', 'ok');
                 } catch (err) { toast('Reset failed: ' + err.message, 'bad'); }
             });
+
+            /* ----------------------------------------------------------------
+               Invite a teammate: a plain insert into "invites", allowed by
+               the "org admin creates invites for own org" policy in
+               supabase.sql. The code itself is generated server-side by the
+               column default (gen_random_bytes), never chosen by the client.
+               ---------------------------------------------------------------- */
+            const createInviteBtn = document.getElementById('btn-create-invite');
+            if (createInviteBtn) createInviteBtn.addEventListener('click', async () => {
+                const role = document.getElementById('invite-role-select').value;
+                const resultEl = document.getElementById('invite-result');
+                resultEl.textContent = 'Generating…';
+                try {
+                    const { data, error } = await sb.from('invites')
+                        .insert([{ organization_id: currentUser.organization_id, role, created_by: currentUser.id }])
+                        .select().single();
+                    if (error) throw error;
+                    resultEl.innerHTML = 'Code: <strong>' + esc(data.code) + '</strong> (expires ' + new Date(data.expires_at).toLocaleDateString() + ', role: ' + (role === 'user' ? 'Staff' : 'Viewer') + ')';
+                    await audit('Invite code created', 'role=' + role + ', code=' + data.code, false);
+                } catch (err) {
+                    resultEl.textContent = 'Could not create an invite: ' + err.message;
+                }
+            });
+
+            /* ----------------------------------------------------------------
+               Master dashboard (platform owner only). Reads and writes go
+               through platform_list_organizations() / platform_set_org_status()
+               -- SECURITY DEFINER functions that re-check is_platform_owner()
+               themselves (see supabase.sql) -- never a direct table query, so
+               this screen cannot be reached (and these calls cannot succeed)
+               for any other kind of signed-in account.
+               ---------------------------------------------------------------- */
+            function orgStatusBadge(status) {
+                const cls = status === 'active' ? 'badge-active' : (status === 'trialing' ? 'badge-open' : 'badge-inactive');
+                return `<span class="${cls}" style="text-transform:uppercase;">${esc(status)}</span>`;
+            }
+            async function renderMasterDashboard() {
+                const listEl = document.getElementById('master-org-list');
+                listEl.innerHTML = '<div class="panel-text">Loading organisations…</div>';
+                const { data, error } = await sb.rpc('platform_list_organizations');
+                if (error) { listEl.innerHTML = '<div class="panel-text">Could not load organisations: ' + esc(error.message) + '</div>'; return; }
+                if (!data || data.length === 0) { listEl.innerHTML = '<div class="panel-text">No organisations have signed up yet.</div>'; return; }
+                listEl.innerHTML = data.map(o => `
+                    <div class="panel-box">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div style="font-weight:700;">${esc(o.name)}</div>
+                            ${orgStatusBadge(o.status)}
+                        </div>
+                        <div class="panel-text">Plan: ${esc(o.plan)} • ${o.member_count} member(s) • ${o.asset_count} asset(s)</div>
+                        <div class="panel-text">Created ${new Date(o.created_at).toLocaleDateString()}${o.status === 'trialing' ? ' • trial ends ' + new Date(o.trial_ends_at).toLocaleDateString() : ''}</div>
+                        <div class="btn-row" style="margin-top:8px;">
+                            <button class="btn btn-secondary btn-org-activate" data-org="${o.id}" ${o.status === 'active' ? 'disabled' : ''}>Activate</button>
+                            <button class="btn btn-danger btn-org-suspend" data-org="${o.id}" ${o.status === 'suspended' ? 'disabled' : ''}>Suspend</button>
+                        </div>
+                    </div>`).join('');
+                listEl.querySelectorAll('.btn-org-activate').forEach(b => b.addEventListener('click', e => setOrgStatus(e.currentTarget.getAttribute('data-org'), 'active')));
+                listEl.querySelectorAll('.btn-org-suspend').forEach(b => b.addEventListener('click', e => setOrgStatus(e.currentTarget.getAttribute('data-org'), 'suspended')));
+            }
+            async function setOrgStatus(orgId, newStatus) {
+                const { error } = await sb.rpc('platform_set_org_status', { org_id: orgId, new_status: newStatus });
+                if (error) { toast('Could not update status: ' + error.message, 'bad'); return; }
+                toast('Organisation status set to ' + newStatus + '.', 'ok');
+                renderMasterDashboard();
+            }
 
             /* ---------------- AI assistant (scripted; the valuation figure is real) ---------------- */
             function sendChatMessage() {
