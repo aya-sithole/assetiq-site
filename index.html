@@ -225,6 +225,15 @@
         .btn-blue:active { background-color: #0b5ed7; transform: scale(0.98); }
         .btn-outline-grey { background-color: white; color: var(--text-muted); border: 1px solid var(--border); }
 
+        .landing-pricing { display: flex; gap: 8px; margin-bottom: 20px; }
+        .price-tier { flex: 1; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 10px; padding: 10px 6px; text-align: center; }
+        .price-tier-name { font-weight: 700; font-size: 12px; }
+        .price-tier-cost { font-size: 14px; font-weight: 700; margin: 4px 0 2px; }
+        .price-tier-limit { font-size: 10px; color: rgba(255, 255, 255, 0.8); }
+        .progress-bar { background: var(--border); border-radius: 8px; height: 8px; overflow: hidden; margin: 6px 0; }
+        .progress-fill { background: var(--primary); height: 100%; }
+        .progress-fill.over-limit { background: var(--danger); }
+
         .auth-screen { background-color: white; }
         .auth-header-wave {
             background-color: #0d6efd;
@@ -489,7 +498,12 @@
             </div>
             <div class="landing-content">
                 <h1 class="landing-title">Enterprise Asset<br>Management</h1>
-                <p class="landing-subtitle">Track, manage, and optimise your organisation's assets seamlessly.</p>
+                <p class="landing-subtitle">Track, manage, and optimise your organisation's assets seamlessly. Start free, upgrade whenever you need more room.</p>
+                <div class="landing-pricing">
+                    <div class="price-tier"><div class="price-tier-name">Trial</div><div class="price-tier-cost">Free · 14 days</div><div class="price-tier-limit">Up to 10 assets</div></div>
+                    <div class="price-tier"><div class="price-tier-name">Starter</div><div class="price-tier-cost">$29</div><div class="price-tier-limit">Up to 50 assets</div></div>
+                    <div class="price-tier"><div class="price-tier-name">Pro</div><div class="price-tier-cost">$99</div><div class="price-tier-limit">Up to 500 assets</div></div>
+                </div>
                 <div class="btn-group-bottom">
                     <button class="btn btn-white nav-trigger" data-target="screen-login">Log in</button>
                     <button class="btn btn-outline-white nav-trigger" data-target="screen-signup">Sign up</button>
@@ -779,6 +793,7 @@
                 <div id="profile-admin-tools" style="display: none;">
                     <button id="btn-open-audit" class="btn btn-secondary tool-btn" style="margin-bottom: 8px; justify-content: center;"><span>📜</span> Audit Log</button>
                     <button id="btn-open-security" class="btn btn-secondary tool-btn" style="margin-bottom: 8px; justify-content: center;"><span>🛡️</span> Access Checks</button>
+                    <button id="btn-open-billing" class="btn btn-secondary tool-btn" style="margin-bottom: 8px; justify-content: center;"><span>💳</span> Billing &amp; Plan</button>
                 </div>
                 <button id="btn-generate-report" class="btn btn-secondary" style="margin: 16px 0 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span>📊</span> Generate Asset Report (CSV)
@@ -856,10 +871,49 @@
             </div>
         </div>
 
+        <div id="screen-billing" class="screen">
+            <div class="top-nav"><button class="back-btn nav-trigger" data-target="screen-profile">← Back</button><div class="nav-title">Billing &amp; Plan</div></div>
+            <div class="content">
+                <div class="caveat">This is a dummy payment flow for demonstration only. No real card processor is wired up -- the card fields below are never validated or stored, and "Pay now" always succeeds. What IS real: the credit balance, the asset-count limit per plan, and the upgrade check -- all enforced in supabase.sql, not just shown here.</div>
+                <div id="billing-plan-box" class="panel-box"><div class="panel-text">Loading…</div></div>
+                <div id="billing-balance-box" class="panel-box"><div class="panel-text">Loading…</div></div>
+                <div class="panel-box">
+                    <div class="panel-title">Top up credits (dummy payment)</div>
+                    <div class="form-group">
+                        <label class="form-label" for="billing-topup-amount">Amount</label>
+                        <select id="billing-topup-amount" class="form-control">
+                            <option value="20">$20</option>
+                            <option value="50" selected>$50</option>
+                            <option value="100">$100</option>
+                            <option value="250">$250</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Card number (not real -- never stored)</label><input type="text" id="billing-card-number" class="form-control" placeholder="4242 4242 4242 4242" maxlength="19"></div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="form-group"><label class="form-label">Expiry</label><input type="text" id="billing-card-expiry" class="form-control" placeholder="MM/YY" maxlength="5"></div>
+                        <div class="form-group"><label class="form-label">CVC</label><input type="text" id="billing-card-cvc" class="form-control" placeholder="123" maxlength="4"></div>
+                    </div>
+                    <button id="btn-billing-pay" class="btn btn-primary" style="margin-top: 4px;">Pay now</button>
+                    <div id="billing-topup-result" class="panel-text" style="margin-top: 8px;"></div>
+                </div>
+                <div class="panel-box">
+                    <div class="panel-title">Change plan</div>
+                    <div class="panel-text" style="margin-bottom: 8px;">Spends from your credit balance above. Refused by the database if your balance doesn't cover the cost.</div>
+                    <div class="btn-row">
+                        <button id="btn-billing-upgrade-starter" class="btn btn-secondary">Starter -- $29</button>
+                        <button id="btn-billing-upgrade-pro" class="btn btn-secondary">Pro -- $99</button>
+                    </div>
+                    <div id="billing-upgrade-result" class="panel-text"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="screen-master" class="screen">
             <div class="top-nav"><div class="nav-title" style="margin-right:0;">AssetIQ Platform Admin 🛠️</div></div>
             <div class="content" style="padding-top:16px;">
-                <div class="panel-text" style="margin-bottom:12px;">You are signed in as the AssetIQ platform owner, not as a member of any customer organisation. This view shows each tenant's subscription plan, status and basic usage counts only -- never their assets, tickets or audit log (see README, "Privacy boundary: what the platform owner can and cannot see").</div>
+                <div class="panel-text" style="margin-bottom:12px;">You are signed in as the AssetIQ platform owner, not as a member of any customer organisation. This view shows each tenant's subscription plan, status and basic usage counts only -- never their assets, tickets or audit log (see README, "Privacy boundary: what the platform owner can and cannot see"). Revenue and payments below are billing records, not tenant operational data, which is why this view can show them.</div>
+                <div id="master-revenue-summary" class="panel-box"><div class="panel-text">Loading revenue…</div></div>
+                <div id="master-recent-payments" class="panel-box"><div class="panel-text">Loading payments…</div></div>
                 <div id="master-org-list"><div class="panel-text">Loading organisations…</div></div>
                 <div class="logout-container" style="margin-top:20px;"><button id="btn-master-logout" class="btn btn-danger">Log Out</button></div>
             </div>
@@ -969,13 +1023,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const orgOpenTickets = document.getElementById('org-open-tickets');
 
             const ROLE_INFO = { user: { label: 'Staff', pill: 'user' }, admin: { label: 'Org Manager', pill: 'admin' }, viewer: { label: 'Viewer', pill: 'viewer' } };
+            // Client-side mirror of plan_asset_limit()/plan_cost() in
+            // supabase.sql, for display only (the usage bar and the button
+            // labels below). The real limit and the real cost check both
+            // live in the database -- see enforce_asset_plan_limit_trigger
+            // and upgrade_plan() -- so a stale copy here could only make the
+            // UI look wrong, never let a tenant exceed its plan.
+            const PLAN_LIMITS = { trial: 10, starter: 50, pro: 500 };
+            const PLAN_COST = { starter: 29, pro: 99 };
             const PERM_LABELS = {
                 view_assets: 'View assets', log_issue: 'Log an issue ticket',
                 edit_asset_basic: 'Update condition, notes and photo',
                 edit_asset_privileged: 'Change serial number, assignment, location and replacement cycle',
                 view_org: 'Open the organisation portfolio and valuation', manage_tickets: 'Manage organisation tickets',
                 view_audit: 'Read the audit log', generate_report: 'Generate reports', use_ai: 'Use the AI assistant',
-                scan_create_asset: 'Register a new asset by scanning its nameplate (AI-assisted)'
+                scan_create_asset: 'Register a new asset by scanning its nameplate (AI-assisted)',
+                manage_billing: 'Manage billing, top up credits and change the subscription plan'
             };
             // Client-side mirror of supabase.sql's policies, used ONLY to
             // decide what the UI shows. The real decision is made by
@@ -986,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 use_ai: ['user', 'admin', 'viewer'], generate_report: ['user', 'admin', 'viewer'],
                 log_issue: ['user', 'admin'], edit_asset_basic: ['user', 'admin'], edit_asset_privileged: ['admin'],
                 view_org: ['admin'], manage_tickets: ['admin'], view_audit: ['admin'], reset_demo: ['admin'],
-                scan_create_asset: ['user', 'admin']
+                scan_create_asset: ['user', 'admin'], manage_billing: ['admin']
             };
             function decide(role, perm) { return !!role && !!PERMS[perm] && PERMS[perm].indexOf(role) !== -1; }
 
@@ -1048,7 +1111,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 'screen-dashboard': 'view_assets', 'screen-summary': 'view_assets', 'screen-edit': 'edit_asset_basic',
                 'screen-org': 'view_org', 'screen-issues-list': 'manage_tickets', 'screen-issue': 'log_issue',
                 'screen-ai': 'use_ai', 'screen-profile': 'view_profile', 'screen-audit': 'view_audit', 'screen-security': 'view_audit',
-                'screen-scan-upload': 'scan_create_asset', 'screen-scan-review': 'scan_create_asset'
+                'screen-scan-upload': 'scan_create_asset', 'screen-scan-review': 'scan_create_asset',
+                'screen-billing': 'manage_billing'
             };
 
             function show(screenId) {
@@ -1088,6 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (screenId === 'screen-audit') renderAudit();
                 if (screenId === 'screen-security') renderSecurity();
                 if (screenId === 'screen-scan-upload') renderScanUpload();
+                if (screenId === 'screen-billing') renderBilling();
                 show(screenId);
             }
 
@@ -1255,6 +1320,7 @@ document.addEventListener('DOMContentLoaded', () => {
             profileBtn.addEventListener('click', () => navigateTo('screen-profile'));
             document.getElementById('btn-open-audit').addEventListener('click', () => navigateTo('screen-audit'));
             document.getElementById('btn-open-security').addEventListener('click', () => navigateTo('screen-security'));
+            document.getElementById('btn-open-billing').addEventListener('click', () => navigateTo('screen-billing'));
 
             /* ----------------------------------------------------------------
                Sign-up: a real sb.auth.signUp(), then exactly ONE of two
@@ -1694,6 +1760,87 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
+            /* ----------------------------------------------------------------
+               Billing: a dummy payment flow (see the caveat on screen-billing
+               itself and README, "Billing, payments and plan tiers"). The
+               fake card fields below are read but never sent anywhere or
+               stored -- only the amount is written, as a row in the real
+               `payments` table, which a trigger in supabase.sql turns into a
+               real balance increase. Upgrading plan calls upgrade_plan(),
+               which checks and spends that balance atomically in the
+               database -- this page never decides whether the upgrade is
+               allowed, it only shows what the database decided.
+               ---------------------------------------------------------------- */
+            async function renderBilling() {
+                const planBox = document.getElementById('billing-plan-box');
+                const balanceBox = document.getElementById('billing-balance-box');
+                planBox.innerHTML = '<div class="panel-text">Loading…</div>';
+                balanceBox.innerHTML = '<div class="panel-text">Loading…</div>';
+
+                const [{ data: org, error: orgErr }, { data: assetRows, error: assetErr }] = await Promise.all([
+                    sb.from('organizations').select('*').eq('id', currentUser.organization_id).single(),
+                    sb.from('assets').select('id'),
+                ]);
+                if (orgErr) { planBox.innerHTML = '<div class="panel-text">Could not load your organisation: ' + esc(orgErr.message) + '</div>'; return; }
+                currentOrg = org;
+
+                const used = assetErr ? null : (assetRows || []).length;
+                const limit = PLAN_LIMITS[org.plan] || PLAN_LIMITS.trial;
+                const pct = used == null ? 0 : Math.min(100, Math.round((used / limit) * 100));
+                planBox.innerHTML = `
+                    <div class="panel-title">Current plan</div>
+                    <div class="panel-text">${esc(org.plan)} • ${esc(org.status)}${org.status === 'trialing' ? ' • trial ends ' + new Date(org.trial_ends_at).toLocaleDateString() : ''}</div>
+                    <div class="panel-text">${used == null ? 'Usage unavailable' : used + ' of ' + limit + ' assets used'}</div>
+                    <div class="progress-bar"><div class="progress-fill${used != null && used >= limit ? ' over-limit' : ''}" style="width:${pct}%"></div></div>`;
+                balanceBox.innerHTML = `
+                    <div class="panel-title">Credit balance</div>
+                    <div style="font-size:24px;font-weight:700;">$${Number(org.credits_balance || 0).toLocaleString()}</div>`;
+
+                const starterBtn = document.getElementById('btn-billing-upgrade-starter');
+                const proBtn = document.getElementById('btn-billing-upgrade-pro');
+                starterBtn.disabled = org.plan === 'starter' || org.plan === 'pro';
+                proBtn.disabled = org.plan === 'pro';
+            }
+
+            document.getElementById('btn-billing-pay').addEventListener('click', async () => {
+                const resultEl = document.getElementById('billing-topup-result');
+                const amount = Number(document.getElementById('billing-topup-amount').value);
+                const cardNumber = document.getElementById('billing-card-number').value.trim();
+                const expiry = document.getElementById('billing-card-expiry').value.trim();
+                const cvc = document.getElementById('billing-card-cvc').value.trim();
+                if (!cardNumber || !expiry || !cvc) { resultEl.textContent = 'Enter a (fake) card number, expiry and CVC -- none of it is checked or stored, this is a demo.'; return; }
+
+                resultEl.textContent = 'Processing payment…';
+                runGuarded('Credits topped up ($' + amount + ')', () => sb.from('payments').insert([{
+                    organization_id: currentUser.organization_id, amount, method: 'card', note: 'Dummy top-up via in-app checkout',
+                }])).then(() => {
+                    document.getElementById('billing-card-number').value = '';
+                    document.getElementById('billing-card-expiry').value = '';
+                    document.getElementById('billing-card-cvc').value = '';
+                    resultEl.textContent = 'Payment successful -- $' + amount + ' added to your balance.';
+                    toast('Credits topped up.', 'ok');
+                    renderBilling();
+                }).catch(err => { resultEl.textContent = 'Payment could not be recorded: ' + (err && err.message || 'refused by the database.'); });
+            });
+
+            async function doUpgrade(newPlan, cost) {
+                const resultEl = document.getElementById('billing-upgrade-result');
+                resultEl.textContent = 'Checking balance and upgrading…';
+                const { data, error } = await sb.rpc('upgrade_plan', { new_plan: newPlan });
+                if (error) {
+                    await audit('Plan upgrade refused (' + newPlan + ')', '403 (database check): ' + error.message, true);
+                    resultEl.textContent = 'Could not upgrade: ' + error.message;
+                    toast('Upgrade refused by the database.', 'bad');
+                    return;
+                }
+                await audit('Plan upgraded to ' + newPlan, 'cost $' + cost, false);
+                resultEl.textContent = 'Upgraded to ' + newPlan + '. New balance: $' + Number((data && data[0] ? data[0].credits_balance : 0)).toLocaleString();
+                toast('Plan upgraded to ' + newPlan + '.', 'ok');
+                renderBilling();
+            }
+            document.getElementById('btn-billing-upgrade-starter').addEventListener('click', () => doUpgrade('starter', PLAN_COST.starter));
+            document.getElementById('btn-billing-upgrade-pro').addEventListener('click', () => doUpgrade('pro', PLAN_COST.pro));
+
             /* ---------------- Audit log ---------------- */
             function fmtTime(ts) {
                 if (!ts) return '…';
@@ -1847,8 +1994,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             async function renderMasterDashboard() {
                 const listEl = document.getElementById('master-org-list');
+                const revEl = document.getElementById('master-revenue-summary');
+                const payEl = document.getElementById('master-recent-payments');
                 listEl.innerHTML = '<div class="panel-text">Loading organisations…</div>';
-                const { data, error } = await sb.rpc('platform_list_organizations');
+                revEl.innerHTML = '<div class="panel-text">Loading revenue…</div>';
+                payEl.innerHTML = '<div class="panel-text">Loading payments…</div>';
+
+                const [{ data, error }, { data: rev, error: revErr }, { data: pays, error: payErr }] = await Promise.all([
+                    sb.rpc('platform_list_organizations'),
+                    sb.rpc('platform_revenue_summary'),
+                    sb.rpc('platform_list_payments', { limit_n: 10 }),
+                ]);
+
+                if (revErr) { revEl.innerHTML = '<div class="panel-text">Could not load revenue: ' + esc(revErr.message) + '</div>'; }
+                else {
+                    const r = (rev && rev[0]) || { total_revenue: 0, revenue_last_30d: 0, payments_count: 0, organizations_count: 0 };
+                    revEl.innerHTML = `<div class="panel-title">Revenue (dummy payments)</div>
+                        <div class="metrics-grid">
+                            <div class="metric-card"><div class="metric-label">Total</div><div class="metric-val">$${Number(r.total_revenue).toLocaleString()}</div></div>
+                            <div class="metric-card"><div class="metric-label">Last 30 days</div><div class="metric-val">$${Number(r.revenue_last_30d).toLocaleString()}</div></div>
+                        </div>
+                        <div class="panel-text">${r.payments_count} successful payment(s) across ${r.organizations_count} organisation(s).</div>`;
+                }
+
+                if (payErr) { payEl.innerHTML = '<div class="panel-text">Could not load payments: ' + esc(payErr.message) + '</div>'; }
+                else {
+                    payEl.innerHTML = '<div class="panel-title">Recent payments</div>' +
+                        ((pays && pays.length) ? pays.map(p => `<div class="panel-text">${esc(p.organization_name)} • $${Number(p.amount).toLocaleString()} • ${esc(p.method)} • ${new Date(p.created_at).toLocaleString()}</div>`).join('') : '<div class="panel-text">No payments yet.</div>');
+                }
+
                 if (error) { listEl.innerHTML = '<div class="panel-text">Could not load organisations: ' + esc(error.message) + '</div>'; return; }
                 if (!data || data.length === 0) { listEl.innerHTML = '<div class="panel-text">No organisations have signed up yet.</div>'; return; }
                 listEl.innerHTML = data.map(o => `
@@ -1857,20 +2031,43 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div style="font-weight:700;">${esc(o.name)}</div>
                             ${orgStatusBadge(o.status)}
                         </div>
-                        <div class="panel-text">Plan: ${esc(o.plan)} • ${o.member_count} member(s) • ${o.asset_count} asset(s)</div>
+                        <div class="panel-text">Plan: ${esc(o.plan)} • ${o.member_count} member(s) • ${o.asset_count} asset(s) • credits: $${Number(o.credits_balance || 0).toLocaleString()}</div>
                         <div class="panel-text">Created ${new Date(o.created_at).toLocaleDateString()}${o.status === 'trialing' ? ' • trial ends ' + new Date(o.trial_ends_at).toLocaleDateString() : ''}</div>
                         <div class="btn-row" style="margin-top:8px;">
                             <button class="btn btn-secondary btn-org-activate" data-org="${o.id}" ${o.status === 'active' ? 'disabled' : ''}>Activate</button>
                             <button class="btn btn-danger btn-org-suspend" data-org="${o.id}" ${o.status === 'suspended' ? 'disabled' : ''}>Suspend</button>
                         </div>
+                        <div class="btn-row" style="margin-top:8px;align-items:center;">
+                            <select class="form-control org-plan-select" data-org="${o.id}" style="flex:1;">
+                                <option value="trial" ${o.plan === 'trial' ? 'selected' : ''}>Trial</option>
+                                <option value="starter" ${o.plan === 'starter' ? 'selected' : ''}>Starter</option>
+                                <option value="pro" ${o.plan === 'pro' ? 'selected' : ''}>Pro</option>
+                            </select>
+                            <button class="btn btn-secondary btn-org-apply-plan" data-org="${o.id}" style="width:auto;padding:11px 14px;">Apply plan</button>
+                        </div>
                     </div>`).join('');
                 listEl.querySelectorAll('.btn-org-activate').forEach(b => b.addEventListener('click', e => setOrgStatus(e.currentTarget.getAttribute('data-org'), 'active')));
                 listEl.querySelectorAll('.btn-org-suspend').forEach(b => b.addEventListener('click', e => setOrgStatus(e.currentTarget.getAttribute('data-org'), 'suspended')));
+                listEl.querySelectorAll('.btn-org-apply-plan').forEach(b => b.addEventListener('click', e => {
+                    const orgId = e.currentTarget.getAttribute('data-org');
+                    const sel = listEl.querySelector('.org-plan-select[data-org="' + orgId + '"]');
+                    setOrgPlan(orgId, sel.value);
+                }));
             }
             async function setOrgStatus(orgId, newStatus) {
                 const { error } = await sb.rpc('platform_set_org_status', { org_id: orgId, new_status: newStatus });
                 if (error) { toast('Could not update status: ' + error.message, 'bad'); return; }
                 toast('Organisation status set to ' + newStatus + '.', 'ok');
+                renderMasterDashboard();
+            }
+            async function setOrgPlan(orgId, newPlan) {
+                // Platform-owner override -- unlike upgrade_plan(), this does
+                // NOT check or spend the tenant's credit balance (support/comp
+                // path, e.g. fixing a stuck account or granting a free
+                // upgrade). See platform_set_org_plan() in supabase.sql.
+                const { error } = await sb.rpc('platform_set_org_plan', { org_id: orgId, new_plan: newPlan });
+                if (error) { toast('Could not update plan: ' + error.message, 'bad'); return; }
+                toast('Organisation plan set to ' + newPlan + '.', 'ok');
                 renderMasterDashboard();
             }
 
