@@ -343,8 +343,15 @@ say exactly what was rejected and why.
 ```
 index.html                                      The whole application -- open this in a browser
 supabase.sql                                     The real access-control enforcement, now organisation-
-                                                  scoped throughout -- paste into Supabase Dashboard >
-                                                  SQL Editor and run once, against a FRESH project
+                                                  scoped throughout, WITH billing/payments/plan-tier
+                                                  enforcement merged in at the end -- paste into
+                                                  Supabase Dashboard > SQL Editor and run once, against
+                                                  a FRESH project
+supabase/billing-upgrade.sql                     The same billing/payments/plan-tier addition as the
+                                                  end of supabase.sql, as its own file -- run THIS one
+                                                  (not all of supabase.sql) against a project that
+                                                  already has the multi-tenant schema and real tenants;
+                                                  it's additive-safe, see its header comment
 supabase/functions/scan-nameplate/index.ts       The AI integration -- unchanged by multi-tenancy
 supabase/functions/create-organization/index.ts  Turns a freshly signed-up account into a new
                                                   organisation's Org Manager (SETUP.md step 5)
@@ -440,18 +447,73 @@ to its own data -- a real refusal from Postgres (and a banner on the
 dashboard explaining why), not a cosmetic UI lock. New organisations start
 `trialing` with a 14-day `trial_ends_at`.
 
-What is **honestly not built**, and should be said plainly rather than
-implied: there is no payment gateway. Nothing charges a card, nothing
-automatically moves an organisation from `trialing` to `active` or
-`suspended` when a trial ends or a payment fails -- the platform owner sets
-`status` by hand from the master dashboard. In a real product this field
-would be updated by a webhook from a billing provider (Stripe is the
-obvious choice, and would slot in cleanly: a webhook handler would be
-another small Edge Function calling the same `platform_set_org_status()`
-path, or writing to `organizations` directly with the service role key).
-Building that integration was out of scope for an MVP assignment with no
-real payment processor account to test against -- flagged here rather than
-left for someone to discover the gap later.
+The platform owner can still set `status` by hand from the master
+dashboard (useful for support: fixing a stuck account, or suspending one
+outside the normal flow) -- but a tenant now also has a self-service path
+of its own, described in the next section, so manual intervention is the
+exception rather than the only way status ever changes.
+
+What is **still honestly not built**, and should be said plainly rather
+than implied: there is no real payment gateway. Nothing in this project
+talks to Stripe, or any card network, or moves real money -- see "Billing,
+payments and plan tiers" below for exactly what the dummy version does and
+does not do, and where a real integration would slot in.
+
+### Billing, payments and plan tiers
+
+A tenant's Org Manager now has a **Billing & Plan** screen (Profile >
+Billing & Plan), added in `supabase/billing-upgrade.sql` (run after
+`supabase.sql` -- see that file's header for why it's additive-safe against
+an already-live project, unlike `supabase.sql` itself). It does three real
+things and one deliberately fake thing:
+
+- **Real: a credit balance.** `organizations.credits_balance` is a genuine
+  numeric column. "Top up" collects a dummy card number, expiry and CVC --
+  none of it is validated, checked against a Luhn algorithm, or stored
+  anywhere; the only field that matters is the amount, which is written as
+  a row in a new `payments` table (an append-only ledger, same pattern as
+  `audit_log`: insert and select policies for the org admin, no update or
+  delete policy for anyone). A trigger, `apply_payment_to_balance_trigger`,
+  turns a `succeeded` payment into a real balance increase -- that part
+  would be unchanged if a real processor were ever wired in; it's the step
+  *before* the insert (actually charging a card) that's fake.
+- **Real: plan tiers that mean something.** Since this prototype doesn't
+  store real uploaded files (photos are mocked filenames, not actual
+  storage -- see "What this prototype does"), "space" here is **asset
+  count**, not disk space: trial = 10 assets, starter = 50, pro = 500
+  (`plan_asset_limit()`). `enforce_asset_plan_limit_trigger` makes Postgres
+  itself refuse to `INSERT` one more asset than the plan allows -- the same
+  kind of real, server-side refusal as `org_active()`, not a number the
+  Billing screen's usage bar merely displays.
+- **Real: an atomic, checked upgrade.** "Upgrade to Starter / Pro" calls
+  `upgrade_plan()`, which checks the caller is an Org Manager, checks the
+  balance covers the plan's cost, and deducts it and changes the plan in
+  the same statement -- so two rapid clicks can't both succeed against a
+  balance that only covers one of them, and a client-side bug that skipped
+  the check couldn't get past the database anyway.
+- **Fake, on purpose: the payment itself.** "Pay now" always succeeds.
+  There is no processor, no decline path, no PCI-anything -- this is the
+  same honest placeholder the rest of the subscription model already was,
+  now scoped specifically to "charging a card" rather than to the whole
+  billing model. A real integration (Stripe, again the obvious choice)
+  would replace just the client-side top-up form with a real checkout, and
+  its webhook would insert into `payments` with the service role key
+  exactly where this demo's button does it directly -- the ledger, the
+  trigger and the plan-limit enforcement underneath would not need to
+  change.
+
+The platform owner's master dashboard gained matching read access to this
+-- but only to the parts that are billing records, not tenant operational
+data, keeping the same privacy boundary described below: a revenue summary
+(`platform_revenue_summary()`: total and trailing-30-day revenue, payment
+count, organisation count) and a recent-payments feed
+(`platform_list_payments()`: organisation name, amount, method and
+timestamp only -- never what that organisation's payment was *for*,
+because there's nothing to be for beyond a plan). The owner can also set
+an organisation's plan directly (`platform_set_org_plan()`), deliberately
+**without** checking or spending that tenant's balance -- a support/comp
+path (fixing a stuck account, granting a free upgrade), separate from the
+tenant's own `upgrade_plan()`, which always does check the balance.
 
 ### The master dashboard, and its privacy boundary
 
@@ -459,9 +521,10 @@ A platform owner is a `platform_admins` row, not a `profiles` row --
 deliberately a different *kind* of account, not an admin-with-extra-powers.
 Logging in as one skips the tenant dashboard entirely and lands on
 **AssetIQ Platform Admin**, which lists every organisation's name, plan,
-status, trial date and two aggregate counts (members, assets), and lets the
-owner set an organisation's status (the subscription-enforcement hook
-above).
+status, trial date, two aggregate counts (members, assets) and credit
+balance, and lets the owner set an organisation's status (the
+subscription-enforcement hook above) or plan, plus the revenue summary and
+recent-payments feed described in "Billing, payments and plan tiers".
 
 **What it deliberately does not show: any tenant's actual data.** No
 asset, no ticket, no audit log entry, not even for troubleshooting. Two
@@ -484,8 +547,13 @@ it now signs in as a seeded platform owner and checks it lands on the
 master dashboard (not a tenant one) and that the dashboard lists the
 seeded organisation; it also runs a full sign-up ("New organisation") end
 to end against a fake `create-organization` function and checks the new
-organisation's name and Org Manager role actually appear. All 28 checks
-pass as of this version.
+organisation's name and Org Manager role actually appear. It also exercises
+the new Billing screen end to end against the fake client's own mirror of
+`apply_payment_to_balance_trigger` and `upgrade_plan()`: a dummy top-up
+raises the shown balance by the paid amount, and an upgrade spends the
+plan's cost from that same balance -- one number, checked twice, not two
+separately-maintained counters that happen to agree. All 33 checks pass as
+of this version.
 
 The same limitation as before still applies, stated plainly rather than
 left implicit: the fake Supabase client this test drives mimics
