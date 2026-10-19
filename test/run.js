@@ -201,8 +201,9 @@ function makeFakeSupabase() {
   };
 }
 
-async function boot(fake) {
-  const html = fs.readFileSync('../index.html', 'utf8');
+async function boot(fake, htmlTransform) {
+  let html = fs.readFileSync('../index.html', 'utf8');
+  if (htmlTransform) html = htmlTransform(html);
   const errors = [];
   const dom = new JSDOM(html, {
     runScripts: 'dangerously', url: 'https://assetiq.test/', pretendToBeVisual: true,
@@ -227,6 +228,17 @@ const active = d => { const a = d.querySelector('.screen.active'); return a ? a.
   check('Starts on the landing screen', active(d) === 'screen-landing');
   check('The old public "Create demo accounts" button is gone', !d.getElementById('btn-run-setup'));
   check('Sign-up screen offers both a Create-org and a Join-with-code mode', !!d.getElementById('signup-mode-create') && !!d.getElementById('signup-mode-join'));
+  check('No quick-demo-access chips render with the shipped (blank) DEMO_ACCOUNTS', d.querySelectorAll('.demo-chip').length === 0);
+
+  // Pricing tiles on the landing screen are themselves sign-up buttons.
+  const starterTile = d.querySelector('.price-tier[data-plan="starter"]');
+  check('Landing page has three clickable plan tiles', d.querySelectorAll('.price-tier').length === 3);
+  if (starterTile) {
+    starterTile.click();
+    check('Clicking the Starter tile reaches the sign-up screen', active(d) === 'screen-signup');
+    check('Clicking a paid tier updates the sign-up hint to mention that plan\'s cost', /\$29/.test(d.getElementById('signup-mode-hint').textContent));
+    d.querySelector('[data-target="screen-landing"]').click();
+  }
 
   d.querySelector('[data-target="screen-login"]').click();
   for (const [email, label] of [['demo@acme.test', 'Staff'], ['admin@acme.test', 'Org Manager'], ['viewer@acme.test', 'Viewer']]) {
@@ -342,6 +354,26 @@ const active = d => { const a = d.querySelector('.screen.active'); return a ? a.
 
   check('No JavaScript errors occurred anywhere in this entire run', errors.length === 0);
   if (errors.length) errors.forEach(e => console.log('      error:', e));
+
+  // Quick demo access: a separate boot with a fake "operator-configured"
+  // DEMO_ACCOUNTS (the shipped file ships this blank -- see the check
+  // above), proving the one-click chip actually drives attemptLogin() and
+  // reaches the real dashboard, not a shortcut that bypasses sign-in.
+  const fake2 = makeFakeSupabase();
+  const injectDemoAccount = html => html.replace(
+    /const DEMO_ACCOUNTS = \[[\s\S]*?\];/,
+    "const DEMO_ACCOUNTS = [{ label: 'Org Manager', email: 'admin@acme.test', password: 'Demo2026pass!' }];"
+  );
+  const { d: d2, errors: errors2 } = await boot(fake2, injectDemoAccount);
+  const demoChip = d2.querySelector('.demo-chip');
+  check('A demo chip renders once DEMO_ACCOUNTS is configured', !!demoChip);
+  if (demoChip) {
+    demoChip.click();
+    await new Promise(r => setTimeout(r, 50));
+    check('Clicking a demo chip signs in via the real login path and reaches the dashboard', active(d2) === 'screen-dashboard');
+    check('The demo chip signed in as the expected role', d2.getElementById('dash-role-badge').textContent === 'Org Manager');
+  }
+  check('No JavaScript errors in the quick-demo-access run', errors2.length === 0);
 
   console.log(`\n${total - failures}/${total} passed`);
   process.exit(failures ? 1 : 0);
