@@ -58,6 +58,27 @@ the real enforcement layer, not `index.html`'s JavaScript.
 schema change (new composite primary keys on `assets` and `tickets`), not a
 safe `ALTER` against an existing project. Use a fresh Supabase project.
 
+**If you already have this multi-tenant version live with real
+organisations signed up:** `supabase.sql` now also includes the billing,
+payments and plan-tier addition at the end -- running the WHOLE file again
+is still safe (every statement in it is idempotent), so you don't need to
+treat this as a second breaking change.
+
+### 3a. Billing, payments and plan tiers (already included above for a fresh project)
+
+This adds a real credit balance, a dummy "pay now" top-up flow, and actual
+enforced per-plan asset limits -- see README, "Billing, payments and plan
+tiers" for what's real and what's a deliberate placeholder. It's already
+part of the `supabase.sql` you just ran in Step 3, so a fresh project needs
+nothing further here.
+
+If you installed this app's multi-tenant version **before** this feature
+existed and don't want to re-run the entire `supabase.sql` file, run just
+`supabase/billing-upgrade.sql` instead (same SQL Editor steps as Step 3) --
+it is written to be safe against an already-live project: it only adds a
+column and a new table, and never drops or re-keys anything existing
+tenants' data depends on.
+
 ## 4. Connect the app to your project
 
 Go to **Project Settings > API**. You'll see a **Project URL** and an
@@ -186,9 +207,15 @@ on supabase.com and click **Resume**.
 
 ## What's genuinely still a demo here
 
-This MVP's subscription model has no real billing provider wired up -- plan
-and status are set by hand from the master dashboard, standing in for what
-a service like Stripe would otherwise update via webhook when a customer
-actually pays, upgrades or cancels. See README, "Subscription model: what's
-real and what's a placeholder" for the honest version of this, including
-what a production build would still need to add.
+This MVP's subscription model has no real payment provider wired up -- the
+Billing screen's "Pay now" collects a fake card number and always succeeds;
+no real card processor, no Stripe, no money moves. What IS real: the
+credit balance it produces, the per-plan asset limit, and the
+checked-and-atomic upgrade that spends that balance -- all enforced in
+`supabase.sql`, not just shown by the page. The platform owner can also
+still set plan/status by hand from the master dashboard, for support cases
+outside the normal flow. See README, "Subscription model: what's real and
+what's a placeholder" and "Billing, payments and plan tiers" for the full,
+honest version of this, including what a production build would still
+need to add (an actual Stripe integration, replacing just the top-up
+form -- see that section for exactly where it would slot in).
