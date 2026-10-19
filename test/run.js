@@ -18,7 +18,7 @@ function check(name, cond) { total++; if (!cond) { failures++; console.log('FAIL
 // ---------------------------------------------------------------------
 function makeFakeSupabase() {
   let orgs = [
-    { id: 'org-acme', name: 'Acme Co', slug: 'acme-co', plan: 'pro', status: 'active', trial_ends_at: new Date(Date.now() + 9e8).toISOString(), created_at: new Date().toISOString() },
+    { id: 'org-acme', name: 'Acme Co', slug: 'acme-co', plan: 'trial', status: 'active', trial_ends_at: new Date(Date.now() + 9e8).toISOString(), created_at: new Date().toISOString(), credits_balance: 150 },
   ];
   const users = [
     { id: 'uid-admin', email: 'admin@acme.test', password: 'Demo2026pass!', role: 'admin', name: 'Alex Manager', title: 'Fleet & Asset Director', dept: 'Operations Management', organization_id: 'org-acme' },
@@ -33,13 +33,14 @@ function makeFakeSupabase() {
   ];
   let tickets = [];
   let auditLog = [];
+  let payments = [];
   let authCallback = null;
   let session = null;
   let pendingSignups = {}; // email -> { id, password } for the fake signUp()/signIn() pair
   let nextId = 1000;
   const errors = [];
 
-  const TABLES = { profiles: () => profiles, assets: () => assets, tickets: () => tickets, audit_log: () => auditLog, organizations: () => orgs, invites: () => invites, platform_admins: () => platformAdmins };
+  const TABLES = { profiles: () => profiles, assets: () => assets, tickets: () => tickets, audit_log: () => auditLog, organizations: () => orgs, invites: () => invites, platform_admins: () => platformAdmins, payments: () => payments };
 
   function q(table) {
     const state = { table, filters: [], order: null, limitN: null, single: false, maybeSingle: false, countMode: null };
@@ -65,14 +66,26 @@ function makeFakeSupabase() {
       insert(rows) {
         const arr = (Array.isArray(rows) ? rows : [rows]).map(r => {
           if (table === 'invites' && !r.code) r = { ...r, code: 'code-' + (nextId++), expires_at: new Date(Date.now() + 6e8).toISOString(), used_by: null, used_at: null };
-          if (table === 'organizations' && !r.id) r = { ...r, id: 'org-' + (nextId++), plan: 'trial', status: 'trialing', trial_ends_at: new Date(Date.now() + 1.2e9).toISOString(), created_at: new Date().toISOString() };
+          if (table === 'organizations' && !r.id) r = { ...r, id: 'org-' + (nextId++), plan: 'trial', status: 'trialing', trial_ends_at: new Date(Date.now() + 1.2e9).toISOString(), created_at: new Date().toISOString(), credits_balance: 0 };
+          if (table === 'payments') r = { ...r, id: 'pay-' + (nextId++), status: r.status || 'succeeded', method: r.method || 'card', created_at: new Date().toISOString() };
           return r;
         });
         arr.forEach(r => data().push(r));
-        return {
-          select: () => ({ single: () => Promise.resolve({ data: arr[0], error: null }), then: (res) => res({ data: arr, error: null }) }),
-          then: (res) => res({ data: arr, error: null }),
-        };
+        // Mirrors apply_payment_to_balance_trigger in supabase.sql: a
+        // succeeded payment is a real balance increase, not just a logged row.
+        if (table === 'payments') {
+          arr.forEach(r => { if (r.status === 'succeeded') { const o = orgs.find(x => x.id === r.organization_id); if (o) o.credits_balance = (o.credits_balance || 0) + Number(r.amount); } });
+        }
+        // A real Promise, not a bare object with a `then` method -- so a
+        // caller chaining .then(...).catch(...) off this (as runGuarded()
+        // does for every insert in index.html) gets proper native Promise
+        // chaining, the same as the real supabase-js client's thenable
+        // query builder. .select() is attached as an extra property on the
+        // same promise so both `insert(...)` and `insert(...).select()`
+        // resolve consistently.
+        const resultPromise = Promise.resolve({ data: arr, error: null });
+        resultPromise.select = () => ({ single: () => Promise.resolve({ data: arr[0], error: null }), then: resultPromise.then.bind(resultPromise), catch: resultPromise.catch.bind(resultPromise) });
+        return resultPromise;
       },
       upsert(rows) {
         const arr = Array.isArray(rows) ? rows : [rows];
@@ -95,12 +108,37 @@ function makeFakeSupabase() {
   async function rpc(name, args) {
     if (name === 'is_platform_owner') return { data: !!(session && platformAdmins.find(p => p.id === session.id)), error: null };
     if (name === 'platform_list_organizations') {
-      return { data: orgs.map(o => ({ ...o, member_count: profiles.filter(p => p.organization_id === o.id).length, asset_count: assets.filter(a => a.organization_id === o.id).length })), error: null };
+      return { data: orgs.map(o => ({ ...o, member_count: profiles.filter(p => p.organization_id === o.id).length, asset_count: assets.filter(a => a.organization_id === o.id).length, credits_balance: o.credits_balance || 0 })), error: null };
     }
     if (name === 'platform_set_org_status') {
       const o = orgs.find(x => x.id === args.org_id);
       if (o) o.status = args.new_status;
       return { data: null, error: null };
+    }
+    if (name === 'platform_set_org_plan') {
+      const o = orgs.find(x => x.id === args.org_id);
+      if (o) o.plan = args.new_plan;
+      return { data: null, error: null };
+    }
+    if (name === 'platform_revenue_summary') {
+      const succeeded = payments.filter(p => p.status === 'succeeded');
+      return { data: [{ total_revenue: succeeded.reduce((s, p) => s + Number(p.amount), 0), revenue_last_30d: succeeded.reduce((s, p) => s + Number(p.amount), 0), payments_count: succeeded.length, organizations_count: orgs.length }], error: null };
+    }
+    if (name === 'platform_list_payments') {
+      const succeeded = payments.filter(p => p.status === 'succeeded').slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      return { data: succeeded.slice(0, (args && args.limit_n) || 20).map(p => ({ id: p.id, organization_name: (orgs.find(o => o.id === p.organization_id) || {}).name || '', amount: p.amount, method: p.method, created_at: p.created_at })), error: null };
+    }
+    // Mirrors upgrade_plan() in supabase.sql: checked and spent atomically
+    // against the caller's own organisation, admin only.
+    if (name === 'upgrade_plan') {
+      const me = session && profiles.find(p => p.id === session.id);
+      if (!me || me.role !== 'admin') return { data: null, error: { message: 'Only an Org Manager can change the subscription plan.' } };
+      const cost = args.new_plan === 'starter' ? 29 : (args.new_plan === 'pro' ? 99 : null);
+      if (cost == null) return { data: null, error: { message: 'Unknown plan: ' + args.new_plan } };
+      const o = orgs.find(x => x.id === me.organization_id);
+      if (!o || (o.credits_balance || 0) < cost) return { data: null, error: { message: 'Insufficient credit balance: ' + args.new_plan + ' costs ' + cost + ', your balance is ' + (o ? o.credits_balance : 0) + '. Top up first.' } };
+      o.credits_balance -= cost; o.plan = args.new_plan; o.status = 'active';
+      return { data: [{ plan: o.plan, credits_balance: o.credits_balance }], error: null };
     }
     return { data: null, error: { message: 'Unknown RPC in test double: ' + name } };
   }
@@ -260,6 +298,28 @@ const active = d => { const a = d.querySelector('.screen.active'); return a ? a.
   d.getElementById('btn-open-audit').click();
   await new Promise(r => setTimeout(r, 50));
   check('Org Manager can open the Audit Log', active(d) === 'screen-audit');
+
+  // Billing: a dummy top-up should raise the real credit balance shown on
+  // screen, and a plan upgrade should spend it -- same balance, same number,
+  // not two separate client-side counters that happen to agree.
+  d.getElementById('btn-profile').click();
+  d.getElementById('btn-open-billing').click();
+  await new Promise(r => setTimeout(r, 30));
+  check('Org Manager can open Billing & Plan', active(d) === 'screen-billing');
+  check('Billing shows the organisation\'s credit balance', /\$150/.test(d.getElementById('billing-balance-box').textContent));
+
+  d.getElementById('billing-card-number').value = '4242 4242 4242 4242';
+  d.getElementById('billing-card-expiry').value = '12/30';
+  d.getElementById('billing-card-cvc').value = '123';
+  d.getElementById('billing-topup-amount').value = '50';
+  d.getElementById('btn-billing-pay').click();
+  await new Promise(r => setTimeout(r, 50));
+  check('A dummy top-up raises the balance by the paid amount', /\$200/.test(d.getElementById('billing-balance-box').textContent));
+
+  d.getElementById('btn-billing-upgrade-starter').click();
+  await new Promise(r => setTimeout(r, 50));
+  check('Upgrading to Starter spends the cost from the balance', /\$171/.test(d.getElementById('billing-balance-box').textContent));
+  check('Upgrading to Starter shows success in the result line', /Upgraded to starter/i.test(d.getElementById('billing-upgrade-result').textContent));
 
   d.getElementById('btn-profile').click();
   const orgTab = [...d.querySelectorAll('.nav-tab')].find(t => t.textContent.includes('Tickets'));
