@@ -202,22 +202,29 @@
            AUTHENTICATION FLOW
            ========================================================================== */
         .auth-bg-full {
-            background-color: #0d6efd;
-            background-image: 
-                radial-gradient(circle at 15% 20%, #3b82f6 0%, transparent 40%),
-                radial-gradient(circle at 85% 65%, #0b5ed7 0%, transparent 50%),
-                radial-gradient(circle at 35% 85%, #3b82f6 0%, transparent 45%);
+            background-color: #0b3fb0;
+            background-image:
+                radial-gradient(circle at 12% 12%, #4f8dfb 0%, transparent 42%),
+                radial-gradient(circle at 90% 18%, #22d3ee 0%, transparent 32%),
+                radial-gradient(circle at 85% 70%, #0b5ed7 0%, transparent 50%),
+                radial-gradient(circle at 25% 88%, #3b82f6 0%, transparent 45%),
+                linear-gradient(165deg, #0d6efd 0%, #0b3fb0 60%, #071f5c 100%);
             display: flex;
             flex-direction: column;
             color: white;
         }
 
-        .auth-top-bar { padding: 45px 24px 20px; font-weight: 700; font-size: 18px; }
-        .landing-content { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px 24px 45px; }
-        .landing-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
-        .landing-subtitle { font-size: 14px; color: rgba(255, 255, 255, 0.85); margin-bottom: 36px; line-height: 1.5; }
+        .auth-top-bar { padding: 45px 24px 16px; display: flex; align-items: center; justify-content: space-between; }
+        .auth-logo { font-weight: 800; font-size: 19px; letter-spacing: 0.01em; display: flex; align-items: center; gap: 6px; }
+        .landing-live-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.3); color: #d1fae5; border-radius: 20px; padding: 4px 10px; }
+        .landing-content { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px 24px 40px; overflow-y: auto; }
+        .landing-title { font-size: 29px; font-weight: 800; margin-bottom: 10px; line-height: 1.18; letter-spacing: -0.01em; }
+        .landing-subtitle { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); margin-bottom: 16px; line-height: 1.5; }
+        .landing-features { display: flex; gap: 6px; margin-bottom: 18px; }
+        .landing-feature { flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 8px 4px; text-align: center; font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.9); line-height: 1.3; }
+        .landing-feature .landing-feature-icon { font-size: 16px; display: block; margin-bottom: 3px; }
         .btn-group-bottom { display: flex; flex-direction: column; gap: 12px; }
-        .btn-white { background-color: white; color: #0d6efd; }
+        .btn-white { background-color: white; color: #0d6efd; box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.4); }
         .btn-white:active { background-color: #f3f4f6; }
         .btn-outline-white { background-color: transparent; color: white; border: 1px solid rgba(255, 255, 255, 0.5); }
         .btn-outline-white:active { background-color: rgba(255, 255, 255, 0.1); }
@@ -225,11 +232,26 @@
         .btn-blue:active { background-color: #0b5ed7; transform: scale(0.98); }
         .btn-outline-grey { background-color: white; color: var(--text-muted); border: 1px solid var(--border); }
 
-        .landing-pricing { display: flex; gap: 8px; margin-bottom: 20px; }
-        .price-tier { flex: 1; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 10px; padding: 10px 6px; text-align: center; }
+        .landing-section-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255, 255, 255, 0.65); margin-bottom: 8px; }
+        .landing-pricing { display: flex; gap: 8px; margin-bottom: 18px; }
+        .price-tier {
+            flex: 1; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 12px;
+            padding: 11px 6px; text-align: center; color: white; font-family: inherit; cursor: pointer; display: block;
+            transition: background-color 0.15s, transform 0.1s;
+        }
+        .price-tier:hover { background: rgba(255, 255, 255, 0.18); }
+        .price-tier:active { background: rgba(255, 255, 255, 0.26); transform: scale(0.96); }
+        .price-tier.featured { border-color: #facc15; box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.5) inset; }
         .price-tier-name { font-weight: 700; font-size: 12px; }
         .price-tier-cost { font-size: 14px; font-weight: 700; margin: 4px 0 2px; }
         .price-tier-limit { font-size: 10px; color: rgba(255, 255, 255, 0.8); }
+        .price-tier-cta { font-size: 9.5px; font-weight: 700; color: #bfdbfe; text-transform: uppercase; letter-spacing: 0.03em; margin-top: 4px; }
+
+        .demo-quick-access { margin-bottom: 18px; }
+        .demo-quick-row { display: flex; gap: 6px; flex-wrap: wrap; }
+        .demo-chip { background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.35); color: white; border-radius: 20px; padding: 7px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .demo-chip:active { background: rgba(255, 255, 255, 0.28); }
+
         .progress-bar { background: var(--border); border-radius: 8px; height: 8px; overflow: hidden; margin: 6px 0; }
         .progress-fill { background: var(--primary); height: 100%; }
         .progress-fill.over-limit { background: var(--danger); }
@@ -494,16 +516,33 @@
 <div class="device-simulator">
         <div id="screen-landing" class="screen auth-bg-full active">
             <div class="auth-top-bar">
-                <div class="auth-logo">AssetIQ</div>
+                <div class="auth-logo">📦 AssetIQ</div>
+                <div class="landing-live-badge">● MVP demo</div>
             </div>
             <div class="landing-content">
                 <h1 class="landing-title">Enterprise Asset<br>Management</h1>
                 <p class="landing-subtitle">Track, manage, and optimise your organisation's assets seamlessly. Start free, upgrade whenever you need more room.</p>
-                <div class="landing-pricing">
-                    <div class="price-tier"><div class="price-tier-name">Trial</div><div class="price-tier-cost">Free · 14 days</div><div class="price-tier-limit">Up to 10 assets</div></div>
-                    <div class="price-tier"><div class="price-tier-name">Starter</div><div class="price-tier-cost">$29</div><div class="price-tier-limit">Up to 50 assets</div></div>
-                    <div class="price-tier"><div class="price-tier-name">Pro</div><div class="price-tier-cost">$99</div><div class="price-tier-limit">Up to 500 assets</div></div>
+                <div class="landing-features">
+                    <div class="landing-feature"><span class="landing-feature-icon">📦</span>Asset registry</div>
+                    <div class="landing-feature"><span class="landing-feature-icon">🔧</span>Ticketing</div>
+                    <div class="landing-feature"><span class="landing-feature-icon">✨</span>AI nameplate scan</div>
                 </div>
+
+                <div class="landing-section-label">Choose a plan to get started</div>
+                <div class="landing-pricing">
+                    <button type="button" class="price-tier nav-trigger" data-target="screen-signup" data-plan="trial">
+                        <div class="price-tier-name">Trial</div><div class="price-tier-cost">Free · 14d</div><div class="price-tier-limit">Up to 10 assets</div><div class="price-tier-cta">Start free →</div>
+                    </button>
+                    <button type="button" class="price-tier featured nav-trigger" data-target="screen-signup" data-plan="starter">
+                        <div class="price-tier-name">Starter</div><div class="price-tier-cost">$29</div><div class="price-tier-limit">Up to 50 assets</div><div class="price-tier-cta">Sign up →</div>
+                    </button>
+                    <button type="button" class="price-tier nav-trigger" data-target="screen-signup" data-plan="pro">
+                        <div class="price-tier-name">Pro</div><div class="price-tier-cost">$99</div><div class="price-tier-limit">Up to 500 assets</div><div class="price-tier-cta">Sign up →</div>
+                    </button>
+                </div>
+
+                <div id="demo-quick-access" class="demo-quick-access"></div>
+
                 <div class="btn-group-bottom">
                     <button class="btn btn-white nav-trigger" data-target="screen-login">Log in</button>
                     <button class="btn btn-outline-white nav-trigger" data-target="screen-signup">Sign up</button>
@@ -1269,9 +1308,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            loginBtn.addEventListener('click', async () => {
-                const email = usernameInput.value.trim().toLowerCase();
-                const password = passwordInput.value;
+            // Shared by the real login form AND the one-click demo-access
+            // chips on the landing screen below -- both paths go through
+            // exactly this function, i.e. exactly the same sb.auth.signInWithPassword()
+            // call and the same lockout bookkeeping. A demo chip is a
+            // convenience that fills the two fields in for you, never a
+            // separate or trusted way in.
+            async function attemptLogin(email, password) {
                 loginError.style.display = 'none';
                 if (!email || !password) { showLoginMessage('Email and password cannot be blank.'); return; }
 
@@ -1291,7 +1334,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     delete attempts[email];
                 }
-            });
+            }
+            loginBtn.addEventListener('click', () => attemptLogin(usernameInput.value.trim().toLowerCase(), passwordInput.value));
+
+            /* ----------------------------------------------------------------
+               Quick demo access (landing screen): one-click sign-in buttons
+               for showcasing this MVP to stakeholders, as both a tenant
+               account and the platform owner, without anyone having to type
+               credentials. EDIT DEMO_ACCOUNTS BELOW with real accounts that
+               already exist in YOUR Supabase project (sign up for a tenant
+               one normally; for the platform owner, follow SETUP.md step 6)
+               -- a button only appears once you've filled in that entry's
+               email and password, and clicking it does nothing more than
+               fill in the real login form and submit it via attemptLogin()
+               above, so a wrong/removed account fails exactly like a normal
+               failed sign-in (shown on screen-login), not silently.
+               ---------------------------------------------------------------- */
+            const DEMO_ACCOUNTS = [
+                { label: 'Platform Owner', email: '', password: '' },
+                { label: 'Org Manager', email: '', password: '' },
+                { label: 'Staff', email: '', password: '' },
+                { label: 'Viewer', email: '', password: '' },
+            ];
+            function quickDemoLogin(email, password) {
+                show('screen-login');
+                usernameInput.value = email;
+                passwordInput.value = password;
+                attemptLogin(email, password);
+            }
+            function renderDemoQuickAccess() {
+                const el = document.getElementById('demo-quick-access');
+                if (!el) return;
+                const entries = DEMO_ACCOUNTS.filter(a => a.email && a.password);
+                if (!entries.length) { el.innerHTML = ''; return; }
+                el.innerHTML = '<div class="landing-section-label">Quick demo access</div><div class="demo-quick-row">' +
+                    entries.map((a, i) => `<button type="button" class="demo-chip" data-i="${i}">${esc(a.label)}</button>`).join('') + '</div>';
+                el.querySelectorAll('.demo-chip').forEach(b => b.addEventListener('click', () => {
+                    const a = entries[Number(b.getAttribute('data-i'))];
+                    quickDemoLogin(a.email, a.password);
+                }));
+            }
+            renderDemoQuickAccess();
+
+            /* ---------------- Landing pricing tiles double as sign-up CTAs ---------------- */
+            function chooseLandingPlan(plan) {
+                setSignupMode('create');
+                if (plan && plan !== 'trial' && PLAN_COST[plan]) {
+                    signupModeHint.textContent = "You'll start on a 14-day free trial as Org Manager -- no card required now. Once you're signed up, upgrade to " +
+                        (plan === 'pro' ? 'Pro' : 'Starter') + ' ($' + PLAN_COST[plan] + ') any time from Profile › Billing & Plan.';
+                }
+            }
+            document.querySelectorAll('.price-tier').forEach(t => t.addEventListener('click', () => chooseLandingPlan(t.getAttribute('data-plan'))));
 
             logoutBtn.addEventListener('click', async () => {
                 await audit('Signed out', '', false);
