@@ -1318,7 +1318,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     const body = signupMode === 'create'
                         ? { orgName: signupOrgName.value.trim(), name }
                         : { inviteCode: signupInviteCode.value.trim(), name };
-                    const { data: fnData, error: fnErr } = await sb.functions.invoke(fnName, { body });
+                    // Pass the brand-new session's access token explicitly,
+                    // rather than relying on the Supabase client to have
+                    // already switched over to it internally -- signUp()'s
+                    // own promise can resolve slightly before that internal
+                    // switch happens, which otherwise sends this request
+                    // still authenticated as the anon key and gets refused
+                    // (401 "Not authenticated") by the Edge Function.
+                    const { data: fnData, error: fnErr } = await sb.functions.invoke(fnName, {
+                        body,
+                        headers: { Authorization: 'Bearer ' + signUpData.session.access_token },
+                    });
                     if (fnErr) throw fnErr;
                     if (fnData && fnData.error) throw new Error(fnData.error);
 
